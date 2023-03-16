@@ -4,8 +4,10 @@ const {
   getAllImageActive,
 } = require('../models/image.model');
 
-module.exports = {
+const imageController = {
   getAllImage,
   getImageMotel,
   getAllImageActive,
 };
+
+module.exports = imageController;

@@ -1,6 +1,7 @@
-const {getAllBanner, getAllBannerActive} = require('../models/banner.model');
+const { getAllBanner, getAllBannerActive } = require('../models/banner.model');
 
-module.exports = {
-    getAllBanner,
-    getAllBannerActive,
-}
+const bannerController = {
+  getAllBanner,
+  getAllBannerActive,
+};
+module.exports = bannerController;

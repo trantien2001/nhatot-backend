@@ -1,6 +1,10 @@
-const {getAllQuestion, getAllQuestionActive} = require('../models/question.model');
+const {
+  getAllQuestion,
+  getAllQuestionActive,
+} = require('../models/question.model');
 
-module.exports = {
-    getAllQuestion,
-    getAllQuestionActive,
-}
+const questionController = {
+  getAllQuestion,
+  getAllQuestionActive,
+};
+module.exports = questionController;

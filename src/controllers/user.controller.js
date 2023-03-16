@@ -2,14 +2,17 @@ const {
   getAllUser,
   getAdmin,
   getHost,
+  getHostById,
   getRenter,
-  getAllUserActive,
+  getRenterById,
 } = require('../models/user.model');
-
-module.exports = {
+const userController = {
   getAllUser,
   getAdmin,
-  getAllUserActive,
   getHost,
+  getHostById,
   getRenter,
+  getRenterById,
 };
+
+module.exports = userController;

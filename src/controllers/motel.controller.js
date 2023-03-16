@@ -1,15 +1,17 @@
 const {
-    getAllMotel,
-    getAllMotelActive,
-    getAllInfoMotelActive,
-    getMotel,
-    addMotel
+  // getAllMotel,
+  // getAllMotelActive,
+  getAllInfoMotelActive,
+  getMotel,
+  addMotel,
 } = require('../models/motel.model');
 
-module.exports = {
-    addMotel,
-    getMotel,
-    getAllMotel,
-    getAllMotelActive,
-    getAllInfoMotelActive,
-}
+const motelController = {
+  addMotel,
+  getMotel,
+  // getAllMotel,
+  // getAllMotelActive,
+  getAllInfoMotelActive,
+};
+
+module.exports = motelController

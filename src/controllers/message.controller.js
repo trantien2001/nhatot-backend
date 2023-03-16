@@ -6,7 +6,7 @@ const {
   getAllMessageInMotel,
 } = require('../models/message.model');
 
-module.exports = {
+const messageController = {
   getUserMessageList,
   getAllMessagesUserInMotel,
 
@@ -14,3 +14,5 @@ module.exports = {
   getAllMessageActive,
   getAllMessageInMotel,
 };
+
+module.exports = messageController;

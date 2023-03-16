@@ -1,7 +1,9 @@
-const {getWard,getDistric,getProvince } = require('../models/address.model');
+const { getWard, getDistric, getProvince } = require('../models/address.model');
 
-module.exports = {
-    getWard,
-    getDistric,
-    getProvince,
-}
+const addressController = {
+  getWard,
+  getDistric,
+  getProvince,
+};
+
+module.exports = addressController;
