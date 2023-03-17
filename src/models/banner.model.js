@@ -24,6 +24,34 @@ const bannerModel = {
       });
     });
   },
+
+  addBanner: (req, res) => {
+    sql.query(`INSERT INTO banner(img) VALUES(...)`, (err, result) => {
+      if (err) {
+        return res.status(400).send({ msg: err });
+      }
+      return res.status(200).send({
+        msg: 'Add banner in successfully!',
+        banner: result,
+      });
+    });
+  },
+
+  deleteBanner: (req, res) => {
+    sql.query(
+      `UPDATE banner SET active=0 WHERE id = ${req.body.IdBanner}`,
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        return res.status(200).send({
+          msg: 'Delete banner in successfully!',
+          banner: result,
+        });
+      },
+    );
+  },
+  
 };
 
 module.exports = bannerModel;

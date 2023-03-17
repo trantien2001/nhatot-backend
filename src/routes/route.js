@@ -20,6 +20,7 @@ module.exports = (app) => {
   router.get('/question', questionController.getAllQuestionActive);
 
   // router.get('/message', getAllMessageActive);
+  router.post('/message', messageController.addMessage);
   router.get('/message/:IdMotel', messageController.getAllMessageInMotel);
   router.get('/messageUser/:IdUser', messageController.getUserMessageList);
   router.get('/chat/:IdMotel', messageController.getAllMessagesUserInMotel);

@@ -16,10 +16,10 @@ const authModel = {
             bcrypt.compareSync(password, String(result[0]?.Password).trim())
           ) {
             const { Active, Password, ...users } = result[0];
-            const { jwt } = tokenModel.generateToken(users);
+            const { accessToken } = tokenModel.generateToken(users);
             return res
               .status(200)
-              .send({ users, jwt, message: 'Logged in successfully' });
+              .send({ users, accessToken, message: 'Logged in successfully' });
           } else {
             return res.status(400).send({ message: 'Login failed' });
           }
