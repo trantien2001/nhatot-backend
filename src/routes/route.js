@@ -25,6 +25,9 @@ module.exports = (app) => {
   router.get('/messageUser/:IdUser', messageController.getUserMessageList);
   router.get('/chat/:IdMotel', messageController.getAllMessagesUserInMotel);
 
+  router.get('/motelsInWard/:IdWard', motelController.getMotelsByIdWard);
+  router.get('/motelsInDistrict/:IdDistrict', motelController.getMotelsByIdDistrict);
+  router.get('/motelsInProvince/:IdProvince', motelController.getMotelsByIdProvince);
   router.get('/motels', motelController.getAllInfoMotelActive);
   router.get('/motel/:IdMotel', motelController.getMotel);
 
@@ -35,6 +38,7 @@ module.exports = (app) => {
   router.get('/district/:IdProvince', addressController.getDistric);
   router.get('/ward/:IdDistrict', addressController.getWard);
 
+  router.post('/infoUser', userController.getInfoUser);
   router.get('/user/admin', userController.getAdmin);
   router.get('/user/host', userController.getHost);
   router.get('/user/renter', userController.getRenter);

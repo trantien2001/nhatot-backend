@@ -1,9 +1,11 @@
 const sql = require('./db');
 
 const motelModel = {
-  getAllInfoMotelActive: async (req, res) => {
+  getMotelsByIdWard: async (req, res) => {
     await sql.query(
       `SELECT
+        Avatar,
+        Name,
         motel.IdMotel,
         Title,
         Price,
@@ -13,17 +15,145 @@ const motelModel = {
         Description,
         DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
         srcImage,
-        Address,
+        motel.Address,
         WardPrefix,
         WardName,
         DistrictPrefix,
         DistrictName,
         ProvinceName
-        FROM motel, image, ward, district, province
+        FROM motel, image, ward, district, province, user
+      WHERE motel.IdWard = ward.IdWard
+      AND ward.IdDistrict = district.IdDistrict
+      AND district.IdProvince = province.IdProvince
+      AND motel.Active = true
+      AND user.IdUser = motel.IdUser
+      AND image.IdMotel = Motel.IdMotel
+      AND Motel.IdWard = ${req.params.IdWard}
+      GROUP by Motel.IdMotel
+      ORDER by motel.CreateDay DESC
+      `,
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        return res.status(200).send({
+          msg: 'Get motel in successfully!',
+          motel: result,
+        });
+      },
+    );
+  },
+  getMotelsByIdDistrict: async (req, res) => {
+    await sql.query(
+      `SELECT
+        Avatar,
+        Name,
+        motel.IdMotel,
+        Title,
+        Price,
+        Acreage,
+        Deposits,
+        Status,
+        Description,
+        DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+        srcImage,
+        motel.Address,
+        WardPrefix,
+        WardName,
+        DistrictPrefix,
+        DistrictName,
+        ProvinceName
+        FROM motel, image, ward, district, province, user
+      WHERE motel.IdWard = ward.IdWard
+      AND ward.IdDistrict = district.IdDistrict
+      AND district.IdProvince = province.IdProvince
+      AND motel.Active = true
+      AND user.IdUser = motel.IdUser
+      AND image.IdMotel = Motel.IdMotel
+      AND district.IdDistrict = ${req.params.IdDistrict}
+      GROUP by Motel.IdMotel
+      ORDER by motel.CreateDay DESC
+      `,
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        return res.status(200).send({
+          msg: 'Get motel in successfully!',
+          motel: result,
+        });
+      },
+    );
+  },
+  getMotelsByIdProvince: async (req, res) => {
+    await sql.query(
+      `SELECT
+        Avatar,
+        Name,
+        motel.IdMotel,
+        Title,
+        Price,
+        Acreage,
+        Deposits,
+        Status,
+        Description,
+        DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+        srcImage,
+        motel.Address,
+        WardPrefix,
+        WardName,
+        DistrictPrefix,
+        DistrictName,
+        ProvinceName
+        FROM motel, image, ward, district, province, user
+      WHERE motel.IdWard = ward.IdWard
+      AND ward.IdDistrict = district.IdDistrict
+      AND district.IdProvince = province.IdProvince
+      AND motel.Active = true
+      AND user.IdUser = motel.IdUser
+      AND image.IdMotel = Motel.IdMotel
+      AND province.IdProvince = ${req.params.IdProvince}
+      GROUP by Motel.IdMotel
+      ORDER by motel.CreateDay DESC
+      `,
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        return res.status(200).send({
+          msg: 'Get motel in successfully!',
+          motel: result,
+        });
+      },
+    );
+  },
+
+  getAllInfoMotelActive: async (req, res) => {
+    await sql.query(
+      `SELECT
+        Avatar,
+        Name,
+        motel.IdMotel,
+        Title,
+        Price,
+        Acreage,
+        Deposits,
+        Status,
+        Description,
+        DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+        srcImage,
+        motel.Address,
+        WardPrefix,
+        WardName,
+        DistrictPrefix,
+        DistrictName,
+        ProvinceName
+        FROM motel, image, ward, district, province, user
     WHERE motel.IdWard = ward.IdWard
     AND ward.IdDistrict = district.IdDistrict
     AND district.IdProvince = province.IdProvince
-    AND Active = true
+    AND motel.Active = true
+    AND user.IdUser = motel.IdUser
     AND image.IdMotel = Motel.IdMotel
     GROUP by Motel.IdMotel
     ORDER by CreateDay DESC
@@ -44,6 +174,7 @@ const motelModel = {
     const IdMotel = req.params.IdMotel;
     await sql.query(
       `SELECT 
+        Avatar,
         motel.IdMotel,
         motel.IdUser,
         Name,
