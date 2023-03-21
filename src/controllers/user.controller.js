@@ -1,4 +1,5 @@
 const {
+  getInfoUser,
   getAllUser,
   getAdmin,
   getHost,
@@ -7,6 +8,7 @@ const {
   getRenterById,
 } = require('../models/user.model');
 const userController = {
+  getInfoUser,
   getAllUser,
   getAdmin,
   getHost,

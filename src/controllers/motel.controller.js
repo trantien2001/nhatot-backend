@@ -1,6 +1,9 @@
 const {
   // getAllMotel,
   // getAllMotelActive,
+  getMotelsByIdWard,
+  getMotelsByIdDistrict,
+  getMotelsByIdProvince,
   getAllInfoMotelActive,
   getMotel,
   addMotel,
@@ -9,9 +12,12 @@ const {
 const motelController = {
   addMotel,
   getMotel,
+  getMotelsByIdWard,
+  getMotelsByIdDistrict,
+  getMotelsByIdProvince,
   // getAllMotel,
   // getAllMotelActive,
   getAllInfoMotelActive,
 };
 
-module.exports = motelController
+module.exports = motelController;

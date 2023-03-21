@@ -3,21 +3,16 @@ const sql = require('./db');
 const messageModel = {
   addMessage: async (req, res) => {
     const { Content, IdMotel, IdUser } = req.body;
-    // const nows = await sql.query('SELECT NOW() AS now', (err, result) => {
-    //   return result;
-    // });
-
     await sql.query(
-      `INSERT INTO message(Content, IdUser, IdMotel) VALUES(${Content} ,${IdUser}, ${IdMotel})`,
+      `INSERT INTO message(Content,CreateDay ,IdUser, IdMotel) VALUES("${Content}" ,NOW() ,${IdUser}, ${IdMotel})`,
       (err, result) => {
         if (err) {
           return res.status(400).send({ message: 'Tin nhắn không hợp lệ' });
         }
         sql.query(
           `
-        SELECT * FROM user, message, motel 
-        WHERE user.IdUser = message.IdUser 
-        AND message.IdMotel = motel.IdMotel 
+        SELECT *, hour(CreateDay) as hour, minute(CreateDay) as minute FROM user, message 
+        WHERE user.IdUser = message.IdUser
         AND message.IdMotel = ${IdMotel}
         `,
           (err, result) => {
@@ -49,13 +44,13 @@ const messageModel = {
     );
   },
 
+  // CHAT BOX
   getAllMessagesUserInMotel: (req, res) => {
     sql.query(
-      `
-    SELECT * FROM user, message, motel 
+      ` SELECT *, hour(CreateDay) as hour, minute(CreateDay) as minute 
+    FROM user, message
     WHERE user.IdUser = message.IdUser 
-    AND message.IdMotel = motel.IdMotel 
-    AND motel.IdMotel = ${req.params.IdMotel}
+    AND message.IdMotel = ${req.params.IdMotel}
     `,
       (err, result) => {
         if (err) {
@@ -71,12 +66,12 @@ const messageModel = {
 
   getUserMessageList: (req, res) => {
     sql.query(
-      `SELECT * FROM message, user, motel WHERE message.IdMotel IN 
+      `SELECT * FROM message, user, motel WHERE motel.IdMotel IN 
     (SELECT message.IdMotel FROM message 
-      WHERE message.IdUser = ${req.params.IdUser}) 
+      WHERE message.IdUser = ${req.params.IdUser})
       AND motel.IdMotel = message.IdMotel 
-      AND message.IdUser != ${req.params.IdUser} 
-      AND user.IdUser = message.IdUser 
+      AND user.IdUser = message.IdUser
+      AND message.IdUser != ${req.params.IdUser})
       GROUP BY message.IdMotel 
       ORDER BY message.CreateDay DESC`,
       (err, result) => {
