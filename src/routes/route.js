@@ -13,6 +13,7 @@ module.exports = (app) => {
   // Run successfully
   router.post('/user/login', authController.login);
   router.post('/user/register', authController.register);
+  router.post('/user/logout', authController.logout);
 
   router.get('/banner', bannerController.getAllBanner);
   router.get('/banner:active', bannerController.getAllBannerActive);
@@ -25,10 +26,10 @@ module.exports = (app) => {
   router.get('/messageUser/:IdUser', messageController.getUserMessageList);
   router.get('/chat/:IdMotel', messageController.getAllMessagesUserInMotel);
 
-  router.get('/motelsInWard/:IdWard', motelController.getMotelsByIdWard);
-  router.get('/motelsInDistrict/:IdDistrict', motelController.getMotelsByIdDistrict);
-  router.get('/motelsInProvince/:IdProvince', motelController.getMotelsByIdProvince);
-  router.get('/motels', motelController.getAllInfoMotelActive);
+  router.post('/motelsInWard/:IdWard', motelController.getMotelsByIdWard);
+  router.post('/motelsInDistrict/:IdDistrict', motelController.getMotelsByIdDistrict);
+  router.post('/motelsInProvince/:IdProvince', motelController.getMotelsByIdProvince);
+  router.post('/motels', motelController.getAllInfoMotelActive);
   router.get('/motel/:IdMotel', motelController.getMotel);
 
   router.get('/image/:IdMotel', imageController.getImageMotel);

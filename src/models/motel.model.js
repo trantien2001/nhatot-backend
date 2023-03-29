@@ -2,8 +2,37 @@ const sql = require('./db');
 
 const motelModel = {
   getMotelsByIdWard: async (req, res) => {
+    var count = 0;
     await sql.query(
       `SELECT
+        Name
+        FROM motel, image, ward, district, province, user
+      WHERE motel.IdWard = ward.IdWard
+      AND ward.IdDistrict = district.IdDistrict
+      AND district.IdProvince = province.IdProvince
+      AND motel.Active = true
+      AND user.IdUser = motel.IdUser
+      AND image.IdMotel = Motel.IdMotel
+      AND Motel.IdWard = ${req.params.IdWard}
+      GROUP by Motel.IdMotel
+      ORDER by motel.CreateDay DESC
+      LIMIT ${req.body.begin}, ${req.body.quantity}
+      `,
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        count = result.length;
+      },
+    );
+    await sql.query(
+      `SELECT
+        timestampdiff(month, motel.CreateDay, now()) as month, 
+        timestampdiff(week, motel.CreateDay, now()) as week,
+        timestampdiff(day, motel.CreateDay, now()) as day, 
+        timestampdiff(hour, motel.CreateDay, now()) as hour,
+        timestampdiff(minute, CreateDay, now()) as minute,
+        timestampdiff(second, CreateDay, now()) as second,
         Avatar,
         Name,
         motel.IdMotel,
@@ -31,21 +60,53 @@ const motelModel = {
       AND Motel.IdWard = ${req.params.IdWard}
       GROUP by Motel.IdMotel
       ORDER by motel.CreateDay DESC
+      LIMIT ${req.body.begin}, ${req.body.quantity}
       `,
       (err, result) => {
         if (err) {
           return res.status(400).send({ msg: err });
         }
+
         return res.status(200).send({
           msg: 'Get motel in successfully!',
+          count,
           motel: result,
         });
       },
     );
   },
+
   getMotelsByIdDistrict: async (req, res) => {
+    var count = 0;
     await sql.query(
       `SELECT
+        Name
+        FROM motel, image, ward, district, province, user
+      WHERE motel.IdWard = ward.IdWard
+      AND ward.IdDistrict = district.IdDistrict
+      AND district.IdProvince = province.IdProvince
+      AND motel.Active = true
+      AND user.IdUser = motel.IdUser
+      AND image.IdMotel = Motel.IdMotel
+      AND district.IdDistrict = ${req.params.IdDistrict}
+      GROUP by Motel.IdMotel
+      ORDER by motel.CreateDay DESC
+      `,
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        count = result.length;
+      },
+    );
+    await sql.query(
+      `SELECT
+        timestampdiff(month, motel.CreateDay, now()) as month, 
+        timestampdiff(week, motel.CreateDay, now()) as week,
+        timestampdiff(day, motel.CreateDay, now()) as day, 
+        timestampdiff(hour, motel.CreateDay, now()) as hour,
+        timestampdiff(minute, CreateDay, now()) as minute,
+        timestampdiff(second, CreateDay, now()) as second,
         Avatar,
         Name,
         motel.IdMotel,
@@ -73,6 +134,7 @@ const motelModel = {
       AND district.IdDistrict = ${req.params.IdDistrict}
       GROUP by Motel.IdMotel
       ORDER by motel.CreateDay DESC
+      LIMIT ${req.body.begin}, ${req.body.quantity}
       `,
       (err, result) => {
         if (err) {
@@ -80,14 +142,43 @@ const motelModel = {
         }
         return res.status(200).send({
           msg: 'Get motel in successfully!',
+          count,
           motel: result,
         });
       },
     );
   },
   getMotelsByIdProvince: async (req, res) => {
+    var count = 0;
     await sql.query(
       `SELECT
+        Name
+        FROM motel, image, ward, district, province, user
+      WHERE motel.IdWard = ward.IdWard
+      AND ward.IdDistrict = district.IdDistrict
+      AND district.IdProvince = province.IdProvince
+      AND motel.Active = true
+      AND user.IdUser = motel.IdUser
+      AND image.IdMotel = Motel.IdMotel
+      AND province.IdProvince = ${req.params.IdProvince}
+      GROUP by Motel.IdMotel
+      ORDER by motel.CreateDay DESC
+      `,
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        count = result.length;
+      },
+    );
+    await sql.query(
+      `SELECT
+        timestampdiff(month, motel.CreateDay, now()) as month, 
+        timestampdiff(week, motel.CreateDay, now()) as week,
+        timestampdiff(day, motel.CreateDay, now()) as day, 
+        timestampdiff(hour, motel.CreateDay, now()) as hour,
+        timestampdiff(minute, CreateDay, now()) as minute,
+        timestampdiff(second, CreateDay, now()) as second,
         Avatar,
         Name,
         motel.IdMotel,
@@ -115,6 +206,7 @@ const motelModel = {
       AND province.IdProvince = ${req.params.IdProvince}
       GROUP by Motel.IdMotel
       ORDER by motel.CreateDay DESC
+      LIMIT ${req.body.begin}, ${req.body.quantity}
       `,
       (err, result) => {
         if (err) {
@@ -122,6 +214,7 @@ const motelModel = {
         }
         return res.status(200).send({
           msg: 'Get motel in successfully!',
+          count,
           motel: result,
         });
       },
@@ -129,8 +222,35 @@ const motelModel = {
   },
 
   getAllInfoMotelActive: async (req, res) => {
+    var count = 0;
     await sql.query(
       `SELECT
+        Name
+        FROM motel, image, ward, district, province, user
+    WHERE motel.IdWard = ward.IdWard
+    AND ward.IdDistrict = district.IdDistrict
+    AND district.IdProvince = province.IdProvince
+    AND motel.Active = true
+    AND user.IdUser = motel.IdUser
+    AND image.IdMotel = Motel.IdMotel
+    GROUP by Motel.IdMotel
+    ORDER by CreateDay DESC
+    `,
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        count = result.length;
+      },
+    );
+    await sql.query(
+      `SELECT
+        timestampdiff(month, motel.CreateDay, now()) as month, 
+        timestampdiff(week, motel.CreateDay, now()) as week,
+        timestampdiff(day, motel.CreateDay, now()) as day, 
+        timestampdiff(hour, motel.CreateDay, now()) as hour,
+        timestampdiff(minute, CreateDay, now()) as minute,
+        timestampdiff(second, CreateDay, now()) as second,
         Avatar,
         Name,
         motel.IdMotel,
@@ -140,7 +260,7 @@ const motelModel = {
         Deposits,
         Status,
         Description,
-        DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+        DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
         srcImage,
         motel.Address,
         WardPrefix,
@@ -157,13 +277,16 @@ const motelModel = {
     AND image.IdMotel = Motel.IdMotel
     GROUP by Motel.IdMotel
     ORDER by CreateDay DESC
+    LIMIT ${req.body.begin}, ${req.body.quantity}
     `,
       (err, result) => {
         if (err) {
           return res.status(400).send({ msg: err });
         }
+
         return res.status(200).send({
           msg: 'Get motel in successfully!',
+          count,
           motel: result,
         });
       },
@@ -174,6 +297,18 @@ const motelModel = {
     const IdMotel = req.params.IdMotel;
     await sql.query(
       `SELECT 
+        timestampdiff(month, motel.CreateDay, now()) as month, 
+        timestampdiff(week, motel.CreateDay, now()) as week,
+        timestampdiff(day, motel.CreateDay, now()) as day, 
+        timestampdiff(hour, motel.CreateDay, now()) as hour,
+        timestampdiff(minute, motel.CreateDay, now()) as minute,
+        timestampdiff(second, motel.CreateDay, now()) as second,
+        timestampdiff(month, operatingTime, now()) as monthOperatingTime,
+        timestampdiff(week, operatingTime, now()) as weekOperatingTime,
+        timestampdiff(day, operatingTime, now()) as dayOperatingTime,
+        timestampdiff(hour, operatingTime, now()) as hourOperatingTime,
+        timestampdiff(minute, operatingTime, now()) as minuteOperatingTime,
+        timestampdiff(second, operatingTime, now()) as secondOperatingTime,
         Avatar,
         motel.IdMotel,
         motel.IdUser,
@@ -191,7 +326,8 @@ const motelModel = {
         WardName,
         DistrictPrefix,
         DistrictName,
-        ProvinceName
+        ProvinceName,
+        activeStatus
     FROM motel, image, ward, district, province, user
     WHERE motel.IdWard = ward.IdWard
     AND user.IdUser = motel.IdUser
@@ -256,17 +392,8 @@ const motelModel = {
 
   addMotel: async (req, res) => {
     const IdMotel = (await sql.query('SELECT COUNT(IdMotel) FROM Motel')) + 1;
-    const {
-      Title,
-      Price,
-      Acreage,
-      Address,
-      Deposits,
-      Status,
-      Description,
-      IdUser,
-      IdWard,
-    } = req.body;
+    const { Title, Price, Acreage, Address, Deposits, Status, Description, IdUser, IdWard } =
+      req.body;
     const srcImage = req.files['srcImage'][0].filename;
     var date = new Date();
     const CreateDay = `${date.getFullYear()}-${
@@ -362,18 +489,15 @@ const motelModel = {
 
   ActiveMotel: (req, res) => {
     const { IdMotel, Active } = req.body;
-    sql.query(
-      `UPDATE motel SET Active = ${Active} WHERE IdMotel = ${IdMotel}`,
-      (err, result) => {
-        if (err) {
-          return res.status(400).send({ msg: err });
-        }
-        return res.status(200).send({
-          msg: 'Update active Motel in successfully!',
-          motel: result,
-        });
-      },
-    );
+    sql.query(`UPDATE motel SET Active = ${Active} WHERE IdMotel = ${IdMotel}`, (err, result) => {
+      if (err) {
+        return res.status(400).send({ msg: err });
+      }
+      return res.status(200).send({
+        msg: 'Update active Motel in successfully!',
+        motel: result,
+      });
+    });
   },
 };
 
