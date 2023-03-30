@@ -1,20 +1,24 @@
 const sql = require('./db');
 
 const userModel = {
-  getInfoUser:(req, res)=>{
+  getInfoUser: (req, res) => {
     sql.query(
-    `SELECT * FROM user WHERE IdUser in 
+      `
+    SELECT * FROM user WHERE IdUser IN
     (SELECT IdUser FROM message WHERE IdMotel = ${req.body.IdMotel} 
-    AND IdUser != ${req.body.IdUser} GROUP BY IdUser)
-    `,(err, result) => {
-      if (err) {
-        return res.status(400).send({ msg: err });
-      }
-      return res.status(200).send({
-        msg: 'Get user in successfully!',
-        user: result,
-      });
-    })
+    AND IdUser != ${req.body.IdUser} OR IdUser IN
+    (SELECT IdUser FROM motel WHERE IdMotel = ${req.body.IdMotel}) AND IdUser != ${req.body.IdUser} GROUP BY IdUser)
+    `,
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        return res.status(200).send({
+          msg: 'Get user in successfully!',
+          user: result,
+        });
+      },
+    );
   },
   getAllUser: (req, res) => {
     sql.query('SELECT * FROM user', (err, result) => {

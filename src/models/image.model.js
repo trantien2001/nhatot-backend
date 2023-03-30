@@ -2,7 +2,7 @@ const sql = require('./db');
 const imageModel = {
   getImageMotel: (req, res) => {
     sql.query(
-      `SELECT srcImage FROM image WHERE IdMotel = ${req.params.IdMotel}`,
+      `SELECT IdImage, srcImage FROM image WHERE IdMotel = ${req.params.IdMotel}`,
       (err, result) => {
         if (err) {
           return res.status(400).send({ msg: err });

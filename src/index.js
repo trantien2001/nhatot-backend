@@ -1,5 +1,5 @@
 const express = require('express');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 const app = express();
 const port = 8000;
 const route = require('./routes/route');
@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
     extended: true,
-  })
+  }),
 );
 
 app.get('/', (req, res) => {

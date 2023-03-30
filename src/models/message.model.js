@@ -1,6 +1,7 @@
 const sql = require('./db');
 
 const messageModel = {
+  // SUBMIT MESSAGE
   addMessage: async (req, res) => {
     const { Content, IdMotel, IdUser } = req.body;
     await sql.query(
@@ -64,16 +65,27 @@ const messageModel = {
     );
   },
 
+  // LIST MESSAGE SIDEBAR
   getUserMessageList: (req, res) => {
     sql.query(
-      `SELECT * FROM message, user, motel WHERE motel.IdMotel IN 
-    (SELECT message.IdMotel FROM message 
-      WHERE message.IdUser = ${req.params.IdUser})
-      AND motel.IdMotel = message.IdMotel 
-      AND user.IdUser = message.IdUser
-      AND message.IdUser != ${req.params.IdUser})
-      GROUP BY message.IdMotel 
-      ORDER BY message.CreateDay DESC`,
+      `
+      SELECT * FROM user, motel, message 
+      WHERE motel.IdMotel IN 
+        (SELECT message.IdMotel 
+          FROM message, motel 
+          WHERE message.IdUser = ${req.params.IdUser}
+          OR motel.IdMotel = message.IdMotel 
+          AND motel.IdUser = ${req.params.IdUser})
+      AND message.IdMotel = motel.IdMotel AND
+      (CASE 
+      	WHEN (SELECT IdAuthority FROM user WHERE IdUser = ${req.params.IdUser}) = 3 THEN user.IdUser = motel.IdUser 
+        WHEN (SELECT IdAuthority FROM user WHERE IdUser = ${req.params.IdUser}) = 2 THEN user.IdUser = message.IdUser
+      END)
+      
+      GROUP BY motel.IdMotel
+      ORDER BY message.CreateDay DESC
+      `,
+
       (err, result) => {
         if (err) {
           return res.status(400).send({ msg: err });
@@ -131,4 +143,5 @@ const messageModel = {
     );
   },
 };
+
 module.exports = messageModel;
