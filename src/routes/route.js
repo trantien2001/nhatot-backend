@@ -29,6 +29,10 @@ module.exports = (app) => {
   router.post('/motelsInWard/:IdWard', motelController.getMotelsByIdWard);
   router.post('/motelsInDistrict/:IdDistrict', motelController.getMotelsByIdDistrict);
   router.post('/motelsInProvince/:IdProvince', motelController.getMotelsByIdProvince);
+  router.get('/motelsByPriceRange', motelController.getMotelsByPriceRange);
+  router.get('/motelsByPriceRangeInProvince', motelController.getMotelsByPriceRangeInProvince);
+  router.get('/motelsByPriceRangeInDistrict', motelController.getMotelsByPriceRangeInDistrict);
+  router.get('/motelsByPriceRangeInWard', motelController.getMotelsByPriceRangeInWard);
   router.post('/motels', motelController.getAllInfoMotelActive);
   router.get('/motel/:IdMotel', motelController.getMotel);
 
