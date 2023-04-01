@@ -41,7 +41,9 @@ module.exports = (app) => {
 
   router.get('/province', addressController.getProvince);
   router.get('/district/:IdProvince', addressController.getDistric);
+  router.post('/districtByProvinceName', addressController.getDistrictByProvinceName);
   router.get('/ward/:IdDistrict', addressController.getWard);
+  router.post('/wardByDistrictName', addressController.getWardByDistrictName);
 
   router.post('/infoUser', userController.getInfoUser);
   router.get('/user/admin', userController.getAdmin);

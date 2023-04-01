@@ -27,10 +27,37 @@ const addressModel = {
       },
     );
   },
+  getDistrictByProvinceName: (req, res) => {
+    sql.query(
+      `SELECT * FROM district, province 
+      WHERE district.IdProvince = province.IdProvince AND ProvinceName = "${req.body.ProvinceName}"`,
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        return res.status(200).send({
+          msg: 'Get district in successfully!',
+          district: result,
+        });
+      },
+    );
+  },
 
   getWard: (req, res) => {
+    sql.query(`SELECT * FROM ward WHERE IdDistrict = ${req.params.IdDistrict}`, (err, result) => {
+      if (err) {
+        return res.status(400).send({ msg: err });
+      }
+      return res.status(200).send({
+        msg: 'Get ward in successfully!',
+        ward: result,
+      });
+    });
+  },
+  getWardByDistrictName: (req, res) => {
     sql.query(
-      `SELECT * FROM ward WHERE IdDistrict = ${req.params.IdDistrict}`,
+      `SELECT * FROM district, ward 
+      WHERE district.IdDistrict = ward.IdDistrict AND DistrictName = "${req.body.DistrictName}"`,
       (err, result) => {
         if (err) {
           return res.status(400).send({ msg: err });
