@@ -21,15 +21,18 @@ const userModel = {
     );
   },
   getAllUser: (req, res) => {
-    sql.query('SELECT * FROM user', (err, result) => {
-      if (err) {
-        return res.status(400).send({ msg: err });
-      }
-      return res.status(200).send({
-        msg: 'Get user in successfully!',
-        user: result,
-      });
-    });
+    sql.query(
+      'SELECT IdUser, Address, BirthDay, Email, Gender, Name, PhoneNumber FROM user',
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        return res.status(200).send({
+          msg: 'Get user in successfully!',
+          user: result,
+        });
+      },
+    );
   },
 
   getAdmin: (req, res) => {

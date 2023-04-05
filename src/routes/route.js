@@ -1,3 +1,32 @@
+const multer = require('multer');
+const path = require('path');
+//! Use of Multer
+var storage = multer.diskStorage({
+  destination: (req, file, callBack) => {
+    // callback(null, './uploads');
+    callBack(null, './public/images/'); // './public/images/' directory name where save the file
+    // callBack(null, './public/assets/images/banners'); // './public/images/' directory name where save the file
+  },
+
+  // destination: path.join(__dirname, '../../public/images/banners/'),
+  filename: (req, file, callBack) => {
+    // callBack(null, file.name + '-' + Date.now() + path.extname(file.originalname));
+    callBack(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  },
+});
+// img filter
+// const isImage = (req, file, callback) => {
+//   if (file.mimetype.startsWith('image')) {
+//     callback(null, true);
+//   } else {
+//     callback(null, Error('only image is allowd'));
+//   }
+// };
+const upload = multer({
+  storage,
+  // fileFilter: isImage
+});
+
 const authController = require('../controllers/auth.controller');
 const userController = require('../controllers/user.controller');
 const addressController = require('../controllers/address.controller');
@@ -14,11 +43,23 @@ module.exports = (app) => {
   router.post('/user/login', authController.login);
   router.post('/user/register', authController.register);
   router.post('/user/logout', authController.logout);
+  router.post('/user/changePassword', authController.changePassword);
+  router.post('/user/changeAvatar', authController.changeAvatar);
+  router.post('/user/changeInfoUser', authController.changeInfoUser);
 
+  router.get('/banners', bannerController.getAllBanner);
   router.get('/banner', bannerController.getAllBanner);
+  router.get('/banner/:Id', bannerController.getBanner);
+
+  router.post('/banner', upload.single('image'), bannerController.addBanner);
+  router.patch('/banner/:Id', bannerController.updateBanner);
   router.get('/banner:active', bannerController.getAllBannerActive);
 
-  router.get('/question', questionController.getAllQuestionActive);
+  router.get('/question/:id', questionController.getQuestion);
+  router.get('/questions', questionController.getAllQuestionActive);
+  router.post('/question', questionController.addQuestion);
+  router.patch('/question/:Id', questionController.updateQuestion);
+  // router.delete('/question/:Id', questionController.updateQuestion);
 
   // router.get('/message', getAllMessageActive);
   router.post('/message', messageController.addMessage);
@@ -51,7 +92,7 @@ module.exports = (app) => {
   router.get('/user/renter', userController.getRenter);
   router.get('/renter/:IdUser', userController.getRenterById);
   router.get('/host/:IdUser', userController.getHostById);
-  router.get('/user', userController.getAllUser);
+  router.get('/users', userController.getAllUser);
   // Run successfully
 
   app.use('/', router);
