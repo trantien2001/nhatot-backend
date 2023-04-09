@@ -4,6 +4,160 @@ const tokenModel = require('./token.model');
 const saltRounds = 10;
 
 const authModel = {
+  changePassword: async (req, res) => {
+    const { IdUser, oldPassword, newPassword } = req.body;
+    // const hashOldPassword = await bcrypt.hash(oldPassword, saltRounds);
+    const hashNewPassword = await bcrypt.hash(newPassword, saltRounds);
+    await sql.query(
+      `SELECT
+      Active,
+      Address,
+      Avatar,
+      DATE_FORMAT(BirthDay, '%Y-%m-%d') as BirthDay,
+      DistrictName,
+      DistrictPrefix,
+      Email,
+      Followers,
+      Following,
+      Gender,
+      IdAuthority,
+      province.IdProvince,
+      district.IdDistrict,
+      user.IdUser,
+      ward.IdWard,
+      Name,
+      Password,
+      PhoneNumber,
+      ProvinceName,
+      WardName,
+      WardPrefix,
+      operatingTime,
+      activeStatus
+      FROM user, ward, district, province 
+      WHERE user.IdUser = ${IdUser}
+      AND user.IdWard = ward.IdWard 
+      AND ward.IdDistrict = district.IdDistrict 
+      AND district.IdProvince = province.IdProvince
+      `,
+      (err, result) => {
+        if (err) {
+          return res.json(err);
+        } else {
+          if (bcrypt.compareSync(oldPassword, String(result[0]?.Password).trim())) {
+            result[0].activeStatus = 1;
+            const { Active, Password, ...users } = result[0];
+            const { accessToken } = tokenModel.generateToken(users);
+            return res
+              .status(200)
+              .send({ users, accessToken, message: 'Change password in successfully' });
+          }
+        }
+      },
+    );
+
+    await sql.query(
+      `UPDATE user SET Password = "${hashNewPassword}" WHERE IdUser = ${IdUser}`,
+      (err, result) => {
+        if (err) {
+          return res.json(err);
+        }
+      },
+    );
+  },
+  changeAvatar: async (req, res) => {
+    const { IdUser } = req.body;
+    await sql.query(
+      `UPDATE user SET Avatar = "${req.file.filename}" WHERE IdUser = ${IdUser}`,
+      (err, result) => {
+        if (err) {
+          return res.json(err);
+        }
+        return res.status(200).send({ file: req.file.filename });
+      },
+    );
+  },
+  changeInfoUser: async (req, res) => {
+    var IdWard = 0;
+    const { IdUser, name, email, phoneNumber, road, gender, birthDay, ward, province } = req.body;
+
+    await sql.query(
+      `
+    (SELECT IdWard FROM ward, province
+      WHERE ward.IdProvince = province.IdProvince
+    AND province.ProvinceName = "${province}" And ward.WardName = "${ward}")
+    `,
+      (err, result) => {
+        if (err) {
+          return res.json(err);
+        }
+        IdWard = result[0].IdWard;
+      },
+    );
+    setTimeout(() => {
+      sql.query(
+        `UPDATE user SET 
+        Name = "${name}", 
+        Email = "${email}",
+        PhoneNumber = "${phoneNumber}",
+        Address = "${road}",
+        Gender = "${gender}",
+        BirthDay = "${birthDay}",
+        IdWard = ${IdWard}
+        WHERE IdUser = ${IdUser}`,
+        (err, result) => {
+          if (err) {
+            return res.json(err);
+          }
+          // return res.status(200).send({ result, message: 'Update info user in successfully' });
+        },
+      );
+      sql.query(
+        `SELECT
+        Active,
+        Address,
+        Avatar,
+        DATE_FORMAT(BirthDay, '%Y-%m-%d') as BirthDay,
+        DistrictName,
+        DistrictPrefix,
+        Email,
+        Followers,
+        Following,
+        Gender,
+        IdAuthority,
+        province.IdProvince,
+        district.IdDistrict,
+        user.IdUser,
+        ward.IdWard,
+        Name,
+        Password,
+        PhoneNumber,
+        ProvinceName,
+        WardName,
+        WardPrefix,
+        operatingTime,
+        activeStatus
+        FROM user, ward, district, province 
+        WHERE user.IdUser = ${IdUser}
+        AND user.IdWard = ward.IdWard 
+        AND ward.IdDistrict = district.IdDistrict 
+        AND district.IdProvince = province.IdProvince
+        `,
+        (err, result) => {
+          if (err) {
+            return res.json(err);
+          } else {
+            result[0].activeStatus = 1;
+            const { Active, Password, ...users } = result[0];
+            const { accessToken } = tokenModel.generateToken(users);
+            return res
+              .status(200)
+              .send({ users, accessToken, message: 'Update info user in successfully' });
+          }
+        },
+      );
+    }, 500);
+  },
+
   logout: async (req, res) => {
     const { phoneNumber } = req.body;
     await sql.query(

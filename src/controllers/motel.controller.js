@@ -8,7 +8,7 @@ const {
   getMotelsByPriceRange,
   getMotelsByPriceRangeInProvince,
   getMotelsByPriceRangeInDistrict,
-  getMotelsByPriceRangeInWard,
+  // getMotelsByPriceRangeInWard,
   getMotel,
   // addMotel,
 } = require('../models/motel.model');
@@ -22,7 +22,7 @@ const motelController = {
   getMotelsByPriceRange,
   getMotelsByPriceRangeInProvince,
   getMotelsByPriceRangeInDistrict,
-  getMotelsByPriceRangeInWard,
+  // getMotelsByPriceRangeInWard,
   // getAllMotel,
   // getAllMotelActive,
   getAllInfoMotelActive,

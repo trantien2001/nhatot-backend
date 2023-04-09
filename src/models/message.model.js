@@ -1,4 +1,5 @@
 const sql = require('./db');
+const { io } = require('..');
 
 const messageModel = {
   // SUBMIT MESSAGE
@@ -10,22 +11,31 @@ const messageModel = {
         if (err) {
           return res.status(400).send({ message: 'Tin nhắn không hợp lệ' });
         }
-        sql.query(
-          `
-        SELECT *, hour(CreateDay) as hour, minute(CreateDay) as minute FROM user, message 
-        WHERE user.IdUser = message.IdUser
-        AND message.IdMotel = ${IdMotel}
-        `,
-          (err, result) => {
-            if (err) {
-              return res.status(400).send({ msg: err });
-            }
-            return res.status(200).send({
-              msg: 'Post chat in successfully!',
-              chat: result,
-            });
-          },
-        );
+      },
+    );
+    await sql.query(
+      `
+    SELECT *, hour(CreateDay) as hour, minute(CreateDay) as minute FROM user, message 
+    WHERE user.IdUser = message.IdUser
+    AND message.IdMotel = ${IdMotel}
+    `,
+      (err, result) => {
+        if (err) {
+          return res.status(400).send({ msg: err });
+        }
+        // io.emit('receive_message', result);
+        // io.on('connection', (socket) => {
+        //   console.log(socket);
+        //   socket.on('send_message', (data) => {
+        //     console.log(data);
+        //     socket.to().emit('receive_message', result);
+        //     console.log(result);
+        //   });
+        // });
+        return res.status(200).send({
+          msg: 'Post chat in successfully!',
+          chat: result,
+        });
       },
     );
   },

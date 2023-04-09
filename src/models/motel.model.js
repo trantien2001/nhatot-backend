@@ -76,82 +76,83 @@ const motelModel = {
     );
   },
 
-  getMotelsByPriceRangeInWard: async (req, res) => {
-    var count = 0;
-    const { begin, start, end, quantity, IdWard } = req.body;
-    await sql.query(
-      `SELECT
-        Name
-        FROM motel, image, ward, district, province, user
-      WHERE motel.IdWard = ward.IdWard
-      AND ward.IdDistrict = district.IdDistrict
-      AND district.IdProvince = province.IdProvince
-      AND motel.Active = true
-      AND user.IdUser = motel.IdUser
-      AND image.IdMotel = Motel.IdMotel
-      AND Motel.IdWard = ${IdWard}
-      AND Price BETWEEN ${begin} AND ${end}
-      GROUP by Motel.IdMotel
-      ORDER by motel.CreateDay DESC
-      `,
-      (err, result) => {
-        if (err) {
-          return res.status(400).send({ msg: err });
-        }
-        count = result.length;
-      },
-    );
-    await sql.query(
-      `SELECT
-        timestampdiff(month, motel.CreateDay, now()) as month, 
-        timestampdiff(week, motel.CreateDay, now()) as week,
-        timestampdiff(day, motel.CreateDay, now()) as day, 
-        timestampdiff(hour, motel.CreateDay, now()) as hour,
-        timestampdiff(minute, CreateDay, now()) as minute,
-        timestampdiff(second, CreateDay, now()) as second,
-        Avatar,
-        Name,
-        motel.IdMotel,
-        Title,
-        Price,
-        Acreage,
-        Deposits,
-        Status,
-        Description,
-        DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
-        srcImage,
-        motel.Address,
-        WardPrefix,
-        WardName,
-        DistrictPrefix,
-        DistrictName,
-        ProvinceName
-        FROM motel, image, ward, district, province, user
-      WHERE motel.IdWard = ward.IdWard
-      AND ward.IdDistrict = district.IdDistrict
-      AND district.IdProvince = province.IdProvince
-      AND motel.Active = true
-      AND user.IdUser = motel.IdUser
-      AND image.IdMotel = Motel.IdMotel
-      AND Motel.IdWard = ${IdWard}
-      AND Price BETWEEN ${begin} AND ${end}
-      GROUP by Motel.IdMotel
-      ORDER by motel.CreateDay DESC
-      LIMIT ${start}, ${quantity}
-      `,
-      (err, result) => {
-        if (err) {
-          return res.status(400).send({ msg: err });
-        }
+  // getMotelsByPriceRangeInWard: async (req, res) => {
+  //   var count = 0;
+  //   const { begin, start, end, quantity, IdWard } = req.body;
+  //   await sql.query(
+  //     `SELECT
+  //       Name
+  //       FROM motel, image, ward, district, province, user
+  //     WHERE motel.IdWard = ward.IdWard
+  //     AND ward.IdDistrict = district.IdDistrict
+  //     AND district.IdProvince = province.IdProvince
+  //     AND motel.Active = true
+  //     AND user.IdUser = motel.IdUser
+  //     AND image.IdMotel = Motel.IdMotel
+  //     AND Motel.IdWard = ${IdWard}
+  //     AND Price BETWEEN ${begin} AND ${end}
+  //     GROUP by Motel.IdMotel
+  //     ORDER by motel.CreateDay DESC
+  //     `,
+  //     (err, result) => {
+  //       if (err) {
+  //         return res.status(400).send({ msg: err });
+  //       }
+  //       count = result.length;
+  //     },
+  //   );
+  //   await sql.query(
+  //     `SELECT
+  //       timestampdiff(month, motel.CreateDay, now()) as month,
+  //       timestampdiff(week, motel.CreateDay, now()) as week,
+  //       timestampdiff(day, motel.CreateDay, now()) as day,
+  //       timestampdiff(hour, motel.CreateDay, now()) as hour,
+  //       timestampdiff(minute, CreateDay, now()) as minute,
+  //       timestampdiff(second, CreateDay, now()) as second,
+  //       Avatar,
+  //       Name,
+  //       motel.IdMotel,
+  //       Title,
+  //       Price,
+  //       Acreage,
+  //       Deposits,
+  //       Status,
+  //       Description,
+  //       DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+  //       srcImage,
+  //       motel.Address,
+  //       WardPrefix,
+  //       WardName,
+  //       DistrictPrefix,
+  //       DistrictName,
+  //       ProvinceName
+  //       FROM motel, image, ward, district, province, user
+  //     WHERE motel.IdWard = ward.IdWard
+  //     AND ward.IdDistrict = district.IdDistrict
+  //     AND district.IdProvince = province.IdProvince
+  //     AND motel.Active = true
+  //     AND user.IdUser = motel.IdUser
+  //     AND image.IdMotel = Motel.IdMotel
+  //     AND Motel.IdWard = ${IdWard}
+  //     AND Price BETWEEN ${begin} AND ${end}
+  //     GROUP by Motel.IdMotel
+  //     ORDER by motel.CreateDay DESC
+  //     LIMIT ${start}, ${quantity}
+  //     `,
+  //     (err, result) => {
+  //       if (err) {
+  //         return res.status(400).send({ msg: err });
+  //       }
 
-        return res.status(200).send({
-          msg: 'Get motel in successfully!',
-          count,
-          motel: result,
-        });
-      },
-    );
-  },
+  //       return res.status(200).send({
+  //         msg: 'Get motel in successfully!',
+  //         count,
+  //         motel: result,
+  //       });
+  //     },
+  //   );
+  // },
+
   getMotelsByIdWard: async (req, res) => {
     var count = 0;
     await sql.query(
@@ -577,7 +578,7 @@ const motelModel = {
     AND image.IdMotel = Motel.IdMotel
     GROUP by Motel.IdMotel
     ORDER by CreateDay DESC
-    LIMIT ${req.body.begin}, ${req.body.quantity}
+    LIMIT ${req.body.start}, ${req.body.quantity}
     `,
       (err, result) => {
         if (err) {

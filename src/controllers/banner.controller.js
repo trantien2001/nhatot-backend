@@ -1,6 +1,15 @@
-const { getAllBanner, getAllBannerActive } = require('../models/banner.model');
+const {
+  getBanner,
+  addBanner,
+  updateBanner,
+  getAllBanner,
+  getAllBannerActive,
+} = require('../models/banner.model');
 
 const bannerController = {
+  getBanner,
+  addBanner,
+  updateBanner,
   getAllBanner,
   getAllBannerActive,
 };

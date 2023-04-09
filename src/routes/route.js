@@ -1,31 +1,4 @@
-const multer = require('multer');
-const path = require('path');
-//! Use of Multer
-var storage = multer.diskStorage({
-  destination: (req, file, callBack) => {
-    // callback(null, './uploads');
-    callBack(null, './public/images/'); // './public/images/' directory name where save the file
-    // callBack(null, './public/assets/images/banners'); // './public/images/' directory name where save the file
-  },
-
-  // destination: path.join(__dirname, '../../public/images/banners/'),
-  filename: (req, file, callBack) => {
-    // callBack(null, file.name + '-' + Date.now() + path.extname(file.originalname));
-    callBack(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-  },
-});
-// img filter
-// const isImage = (req, file, callback) => {
-//   if (file.mimetype.startsWith('image')) {
-//     callback(null, true);
-//   } else {
-//     callback(null, Error('only image is allowd'));
-//   }
-// };
-const upload = multer({
-  storage,
-  // fileFilter: isImage
-});
+var router = require('express').Router();
 
 const authController = require('../controllers/auth.controller');
 const userController = require('../controllers/user.controller');
@@ -35,8 +8,7 @@ const bannerController = require('../controllers/banner.controller');
 const messageController = require('../controllers/message.controller');
 const questionController = require('../controllers/question.controller');
 const motelController = require('../controllers/motel.controller');
-
-var router = require('express').Router();
+const { upload } = require('../middlewares/upload');
 
 module.exports = (app) => {
   // Run successfully
@@ -44,22 +16,23 @@ module.exports = (app) => {
   router.post('/user/register', authController.register);
   router.post('/user/logout', authController.logout);
   router.post('/user/changePassword', authController.changePassword);
-  router.post('/user/changeAvatar', authController.changeAvatar);
+  router.post('/user/changeAvatar', upload('avatar').single('avatar'), authController.changeAvatar);
+  router.post('/user/changeAvatar', upload('banner').single('avatar'), authController.changeAvatar);
   router.post('/user/changeInfoUser', authController.changeInfoUser);
 
   router.get('/banners', bannerController.getAllBanner);
   router.get('/banner', bannerController.getAllBanner);
   router.get('/banner/:Id', bannerController.getBanner);
 
-  router.post('/banner', upload.single('image'), bannerController.addBanner);
+  router.post('/banner', bannerController.addBanner);
   router.patch('/banner/:Id', bannerController.updateBanner);
   router.get('/banner:active', bannerController.getAllBannerActive);
 
   router.get('/question/:id', questionController.getQuestion);
-  router.get('/questions', questionController.getAllQuestionActive);
+  router.get('/questions', questionController.getAllQuestion);
   router.post('/question', questionController.addQuestion);
   router.patch('/question/:Id', questionController.updateQuestion);
-  // router.delete('/question/:Id', questionController.updateQuestion);
+  router.delete('/question/:Id', questionController.removeQuestion);
 
   // router.get('/message', getAllMessageActive);
   router.post('/message', messageController.addMessage);
@@ -73,7 +46,7 @@ module.exports = (app) => {
   router.get('/motelsByPriceRange', motelController.getMotelsByPriceRange);
   router.get('/motelsByPriceRangeInProvince', motelController.getMotelsByPriceRangeInProvince);
   router.get('/motelsByPriceRangeInDistrict', motelController.getMotelsByPriceRangeInDistrict);
-  router.get('/motelsByPriceRangeInWard', motelController.getMotelsByPriceRangeInWard);
+  // router.get('/motelsByPriceRangeInWard', motelController.getMotelsByPriceRangeInWard);
   router.post('/motels', motelController.getAllInfoMotelActive);
   router.get('/motel/:IdMotel', motelController.getMotel);
 
