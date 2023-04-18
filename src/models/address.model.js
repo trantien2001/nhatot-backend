@@ -1,73 +1,74 @@
-const sql = require('./db');
+const connection = require('./db');
 
 const addressModel = {
-  getProvince: (req, res) => {
-    sql.query('SELECT * FROM province', (err, result) => {
-      if (err) {
-        return res.status(400).send({ msg: err });
-      }
-      return res.status(200).send({
-        msg: 'Get province in successfully!',
-        province: result,
-      });
-    });
-  },
-
-  getDistric: (req, res) => {
-    sql.query(
-      `SELECT * FROM district WHERE IdProvince = ${req.params.IdProvince}`,
-      (err, result) => {
-        if (err) {
-          return res.status(400).send({ msg: err });
-        }
-        return res.status(200).send({
-          msg: 'Get district in successfully!',
-          district: result,
-        });
-      },
-    );
-  },
-  getDistrictByProvinceName: (req, res) => {
-    sql.query(
-      `SELECT * FROM district, province 
-      WHERE district.IdProvince = province.IdProvince AND ProvinceName = "${req.body.ProvinceName}"`,
-      (err, result) => {
-        if (err) {
-          return res.status(400).send({ msg: err });
-        }
-        return res.status(200).send({
-          msg: 'Get district in successfully!',
-          district: result,
-        });
-      },
-    );
-  },
-
-  getWard: (req, res) => {
-    sql.query(`SELECT * FROM ward WHERE IdDistrict = ${req.params.IdDistrict}`, (err, result) => {
-      if (err) {
-        return res.status(400).send({ msg: err });
-      }
-      return res.status(200).send({
+  getWard: async (IdDistrict) => {
+    try {
+      const sql = `SELECT * FROM ward WHERE IdDistrict = ${IdDistrict}`;
+      const result = await connection.query(sql, []);
+      return {
         msg: 'Get ward in successfully!',
         ward: result,
-      });
-    });
+      };
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   },
-  getWardByDistrictName: (req, res) => {
-    sql.query(
-      `SELECT * FROM district, ward 
-      WHERE district.IdDistrict = ward.IdDistrict AND DistrictName = "${req.body.DistrictName}"`,
-      (err, result) => {
-        if (err) {
-          return res.status(400).send({ msg: err });
-        }
-        return res.status(200).send({
-          msg: 'Get ward in successfully!',
-          ward: result,
-        });
-      },
-    );
+
+  getDistric: async (IdProvince) => {
+    try {
+      const sql = `SELECT * FROM district WHERE IdProvince = ${IdProvince}`;
+      const result = await connection.query(sql, []);
+      return {
+        msg: 'Get district in successfully!',
+        district: result,
+      };
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  },
+
+  getProvince: async () => {
+    try {
+      const sql = `SELECT * FROM province`;
+      const result = await connection.query(sql, []);
+      return {
+        msg: 'Get province in successfully!',
+        province: result,
+      };
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  },
+
+  getDistrictByProvinceName: async (ProvinceName) => {
+    try {
+      const sql = `SELECT * FROM district, province 
+  WHERE district.IdProvince = province.IdProvince AND ProvinceName = "${ProvinceName}"`;
+      const result = await connection.query(sql, []);
+      return {
+        msg: 'Get district in successfully!',
+        district: result,
+      };
+    } catch (error) {
+      return false;
+    }
+  },
+
+  getWardByDistrictName: async (DistrictName) => {
+    try {
+      const sql = `SELECT * FROM district, ward 
+      WHERE district.IdDistrict = ward.IdDistrict AND DistrictName = "${DistrictName}"`;
+      const result = await connection.query(sql, []);
+      return {
+        msg: 'Get ward in successfully!',
+        ward: result,
+      };
+    } catch (error) {
+      return false;
+    }
   },
 };
 module.exports = addressModel;

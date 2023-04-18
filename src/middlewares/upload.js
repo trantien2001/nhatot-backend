@@ -2,10 +2,10 @@ const { typeImage } = require('../constants/typeFile');
 
 const multer = require('multer');
 
-const upload = () => {
+const upload = (path) => {
   const storage = multer.diskStorage({
     destination: (_req, file, callBack) => {
-      callBack(null, 'public/images/avatars');
+      callBack(null, `public/images/${path}`);
     },
     filename: (_req, file, callBack) => {
       const uniqueSuffix = `${Date.now() + file.originalname}`;

@@ -1,88 +1,80 @@
-const sql = require('./db');
+const connection = require('./db');
+
 const questionModel = {
-  getAllQuestion: (req, res) => {
-    sql.query('SELECT * FROM question', (err, result) => {
-      if (err) {
-        return res.status(400).send({ msg: err });
-      }
-      return res.status(200).send({
+  getQuestion: async (id) => {
+    try {
+      const sql = `SELECT * FROM question WHERE id = ${id}`;
+      const result = await connection.query(sql, []);
+      return {
         msg: 'Get question in successfully!',
         question: result,
-      });
-    });
+      };
+    } catch (error) {
+      return error;
+    }
   },
 
-  getAllQuestionActive: (req, res) => {
-    sql.query('SELECT * FROM question WHERE active = 1', (err, result) => {
-      if (err) {
-        return res.status(400).send({ msg: err });
-      }
-      return res.status(200).send({
+  getAllQuestion: async () => {
+    try {
+      const sql = 'SELECT * FROM question';
+      const result = await connection.query(sql, []);
+      return {
         msg: 'Get question in successfully!',
         question: result,
-      });
-    });
+      };
+    } catch (error) {
+      return error;
+    }
   },
 
-  addQuestion: (req, res) => {
-    const { question, active } = req.body;
-    sql.query(
-      `INSERT INTO question (content, active) VALUES ("${question}", ${active})`,
-      (err, result) => {
-        if (err) {
-          return res.status(400).send({ msg: err });
-        }
-        return res.status(200).send({
-          msg: 'Add question in successfully!',
-        });
-      },
-    );
-  },
-
-  updateQuestion: (req, res) => {
-    const { question, active } = req.body;
-    sql.query(
-      `
-      UPDATE question SET content = "${question}", active = ${active} WHERE id = ${req.params.Id}
-      `,
-      (err, result) => {
-        if (err) {
-          return res.status(400).send({ msg: err });
-        }
-        return res.status(200).send({
-          msg: 'Update question in successfully!',
-        });
-      },
-    );
-  },
-
-  removeQuestion: (req, res) => {
-    sql.query(
-      `
-        DELETE FROM question WHERE id = ${req.params.Id}
-      `,
-      (err, result) => {
-        if (err) {
-          return res.status(400).send({ msg: err });
-        }
-        return res.status(200).send({
-          msg: 'remove question in successfully!',
-        });
-      },
-    );
-  },
-
-  getQuestion: (req, res) => {
-    sql.query(`SELECT * FROM question WHERE id = ${req.params.id}`, (err, result) => {
-      if (err) {
-        return res.status(400).send({ msg: err });
-      }
-      return res.status(200).send({
-        msg: 'Update question in successfully!',
+  getAllQuestionActive: async () => {
+    try {
+      const sql = 'SELECT * FROM question WHERE active = 1';
+      const result = await connection.query(sql, []);
+      return {
+        msg: 'Get question in successfully!',
         question: result,
-      });
-    });
+      };
+    } catch (error) {
+      return error;
+    }
   },
+
+  addQuestion: async ({ question, active }) => {
+    const sql = `INSERT INTO question (content, active) VALUES ("${question}", ${active})`;
+    await connection.query(sql, []);
+    return {
+      msg: 'Add question in successfully!',
+    };
+  },
+
+  updateQuestion: async ({ question, active, id }) => {
+    try {
+      const sql = `UPDATE question 
+      SET content = "${question}", active = ${active} 
+      WHERE id = ${id}`;
+      const result = await connection.query(sql, []);
+      return { msg: 'Cập nhập thành công' };
+    } catch (error) {
+      return error;
+    }
+  },
+
+  // removeQuestion: async() => {
+  //   sql.query(
+  //     `
+  //       DELETE FROM question WHERE id = ${req.params.Id}
+  //     `,
+  //     (err, result) => {
+  //       if (err) {
+  //         return res.status(400).send({ msg: err });
+  //       }
+  //       return res.status(200).send({
+  //         msg: 'remove question in successfully!',
+  //       });
+  //     },
+  //   );
+  // },
 };
 
 module.exports = questionModel;

@@ -1,16 +1,17 @@
-const {
-  getBanner,
-  addBanner,
-  updateBanner,
-  getAllBanner,
-  getAllBannerActive,
-} = require('../models/banner.model');
+const bannerModel = require('../models/banner.model');
 
 const bannerController = {
-  getBanner,
-  addBanner,
-  updateBanner,
-  getAllBanner,
-  getAllBannerActive,
+  getAllBanner: async (req, res) => {
+    const result = await bannerModel.getAllBanner();
+    return res.status(200).send(result);
+  },
+  getAllBannerActive: async (req, res) => {
+    const result = await bannerModel.getAllBannerActive();
+    return res.status(200).send(result);
+  },
+  addBanner: async (req, res) => {
+    const result = await bannerModel.addBanner();
+    return res.status(200).send(result);
+  },
 };
 module.exports = bannerController;

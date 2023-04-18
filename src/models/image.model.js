@@ -1,41 +1,35 @@
-const sql = require('./db');
+const connection = require('./db');
 const imageModel = {
-  getImageMotel: (req, res) => {
-    sql.query(
-      `SELECT IdImage, srcImage FROM image WHERE IdMotel = ${req.params.IdMotel}`,
-      (err, result) => {
-        if (err) {
-          return res.status(400).send({ msg: err });
-        }
-        return res.status(200).send({
-          msg: 'Get image in successfully!',
-          image: result,
-        });
-      },
-    );
+  getImageMotel: async (IdMotel) => {
+    try {
+      const sql = `SELECT IdImage, srcImage FROM image WHERE IdMotel = ${IdMotel}`;
+      const result = await connection.query(sql, []);
+      return result;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
   },
-  getAllImage: (req, res) => {
-    sql.query('SELECT * FROM image', (err, result) => {
-      if (err) {
-        return res.status(400).send({ msg: err });
-      }
-      return res.status(200).send({
-        msg: 'Get image in successfully!',
-        image: result,
-      });
-    });
+  getAllImage: async () => {
+    try {
+      const sql = 'SELECT * FROM image';
+      const result = await connection.query(sql, []);
+      return result;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
   },
 
-  getAllImageActive: (req, res) => {
-    sql.query('SELECT * FROM image WHERE active = 1', (err, result) => {
-      if (err) {
-        return res.status(400).send({ msg: err });
-      }
-      return res.status(200).send({
-        msg: 'Get image in successfully!',
-        image: result,
-      });
-    });
+  getAllImageActive: async () => {
+    try {
+      const sql = 'SELECT * FROM image WHERE active = 1';
+      const result = await connection.query(sql, []);
+      return result;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
   },
 };
 
