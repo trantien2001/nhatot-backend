@@ -1,8 +1,9 @@
-const connection = require('./db');
-const imageModel = {
-  getImageMotel: async (IdMotel) => {
+import connection from './db.js';
+
+const mediaModel = {
+  getMediaMotel: async (IdMotel) => {
     try {
-      const sql = `SELECT IdImage, srcImage FROM image WHERE IdMotel = ${IdMotel}`;
+      const sql = `SELECT * FROM media WHERE IdMotel = ${IdMotel} ORDER BY Type DESC`;
       const result = await connection.query(sql, []);
       return result;
     } catch (err) {
@@ -10,9 +11,9 @@ const imageModel = {
       return false;
     }
   },
-  getAllImage: async () => {
+  getAllMedia: async () => {
     try {
-      const sql = 'SELECT * FROM image';
+      const sql = 'SELECT * FROM media';
       const result = await connection.query(sql, []);
       return result;
     } catch (err) {
@@ -21,9 +22,9 @@ const imageModel = {
     }
   },
 
-  getAllImageActive: async () => {
+  getAllMediaActive: async () => {
     try {
-      const sql = 'SELECT * FROM image WHERE active = 1';
+      const sql = 'SELECT * FROM media WHERE active = 1';
       const result = await connection.query(sql, []);
       return result;
     } catch (err) {
@@ -33,4 +34,4 @@ const imageModel = {
   },
 };
 
-module.exports = imageModel;
+export default mediaModel;

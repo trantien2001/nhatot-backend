@@ -1,19 +1,12 @@
-const mysql = require('mysql');
-const dbConfig = require('../config/db.config');
-
-// const connection = mysql.createConnection({
-//   host: dbConfig.HOST,
-//   user: dbConfig.USER,
-//   password: dbConfig.PASSWORK,
-//   database: dbConfig.DB,
-// });
+import mysql from 'mysql';
+import config from '../config/db.config.js';
 
 function Database() {
   this.connection = mysql.createConnection({
-    host: dbConfig.HOST,
-    user: dbConfig.USER,
-    password: dbConfig.PASSWORK,
-    database: dbConfig.DB,
+    host: config.HOST,
+    user: config.USER,
+    password: config.PASSWORK,
+    database: config.DB,
     multipleStatements: true,
   });
 
@@ -40,10 +33,8 @@ function Database() {
   };
 }
 var connection = new Database();
-
+export default connection;
 // connection.connect((error) => {
 //   if (error) throw error;
 //   console.log('Successfully connected to the database name:', dbConfig.DB);
 // });
-
-module.exports = connection;

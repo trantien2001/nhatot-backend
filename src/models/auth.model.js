@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt');
-const connection = require('./db');
-const tokenModel = require('./token.model');
+import bcrypt from 'bcrypt';
+import connection from './db.js';
+import tokenModel from './token.model.js';
 const saltRounds = 10;
 
 const authModel = {
@@ -135,18 +135,18 @@ const authModel = {
     try {
       const sql1 = `SELECT * FROM user WHERE PhoneNumber = ${phoneNumber}`;
       const result1 = await connection.query(sql1, []);
-      if (!result1) {
+      if (!result1[0]) {
         const hashPassword = await bcrypt.hash(password, saltRounds);
         const sql2 = `INSERT INTO user(Name, PhoneNumber, Password) VALUES ('${fullName}', '${phoneNumber}', '${hashPassword}')`;
-        const result2 = await connection.query(sql2, []);
-      } else return { message: 'This phone number is already in use' };
+        await connection.query(sql2, []);
+      } else return { message: 'Số điện thoại này đã đăng ký' };
       const sql3 = `SELECT * FROM user WHERE PhoneNumber = ${phoneNumber}`;
-      const result3 = await connection.query(sql3, []);
-      return result3;
+      const result = await connection.query(sql3, []);
+      return { message: 'Đăng ký tài khoản thành công', result };
     } catch (error) {
       return false;
     }
   },
 };
 
-module.exports = authModel;
+export default authModel;

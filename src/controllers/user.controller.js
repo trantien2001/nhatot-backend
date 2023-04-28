@@ -1,9 +1,9 @@
-const userModel = require('../models/user.model');
+import { io } from '../index.js';
+import userModel from '../models/user.model.js';
 
 const userController = {
   getUser: async (req, res) => {
-    const IdUser = req.params.IdUser;
-    const user = await userModel.getUser(IdUser);
+    const user = await userModel.getUser(req.body);
     return res.status(200).send(user);
   },
   getInfoUser: async (req, res) => {
@@ -39,6 +39,11 @@ const userController = {
     const result = await userModel.getRenterById(IdUser);
     return res.status(200).send(result);
   },
+  follow: async (req, res) => {
+    console.log('follow: ', io.emit('text', 'tẽtt3o98798'));
+    const result = await userModel.follow(req.body);
+    return res.status(200).send(result);
+  },
 };
 
-module.exports = userController;
+export default userController;

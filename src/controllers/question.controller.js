@@ -1,4 +1,4 @@
-const questionModel = require('../models/question.model');
+import questionModel from '../models/question.model.js';
 
 const questionController = {
   getQuestion: async (req, res) => {
@@ -27,4 +27,5 @@ const questionController = {
     return res.status(200).send(result);
   },
 };
-module.exports = questionController;
+
+export default questionController;

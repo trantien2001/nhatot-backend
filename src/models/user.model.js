@@ -1,8 +1,9 @@
-const connection = require('./db');
-const sql = require('./db');
+import connection from './db.js';
 
 const userModel = {
-  getUser: async (IdUser) => {
+  getUser: async (data) => {
+    const { IdUser, IdFollowers } = data;
+    console.log({ IdUser, IdFollowers });
     try {
       const sql1 = `SELECT 
       timestampdiff(month, operatingTime, now()) as monthOperatingTime,
@@ -25,9 +26,25 @@ const userModel = {
       FROM motel WHERE IdUser = ${IdUser} ORDER BY CreateDay DESC
     `;
 
+      const checkFolow = `SELECT * FROM follow WHERE IdFollowers = ? AND IdFollowing = ?`;
+      const resultCheck = await connection.query(checkFolow, [IdFollowers, IdUser]);
+      const follow = resultCheck[0] ? 'Đang theo dõi' : 'Theo dõi';
+
+      const sqlFollowers = `SELECT COUNT(*) AS followers FROM follow WHERE IdFollowing = ?`;
+      const followers = await connection.query(sqlFollowers, [IdUser]);
+      const sqlFollowing = `SELECT COUNT(*) AS following FROM follow WHERE IdFollowers = ?`;
+      const following = await connection.query(sqlFollowing, [IdUser]);
+
       const result1 = await connection.query(sql1, []);
       const result2 = await connection.query(sql2, []);
-      return { msg: 'Get user in successfully!', motel: result2, user: result1 };
+      return {
+        msg: 'Get user in successfully!',
+        motel: result2,
+        user: result1,
+        follow,
+        followers: followers[0].followers,
+        following: following[0].following,
+      };
     } catch (error) {
       console.log('error:', error);
       return false;
@@ -147,6 +164,28 @@ const userModel = {
     }
   },
 
+  follow: async (data) => {
+    const { IdFollowers, IdFollowing } = data;
+    console.log('model: ', data);
+    try {
+      const checkFolow = `SELECT * FROM follow WHERE IdFollowers = ? AND IdFollowing = ?`;
+      const resultCheck = await connection.query(checkFolow, [IdFollowers, IdFollowing]);
+      if (resultCheck[0]) {
+        console.log('Đã follow');
+        const sqlUnfollow = `DELETE FROM follow WHERE IdFollowers = ? AND IdFollowing = ?`;
+        await connection.query(sqlUnfollow, [IdFollowers, IdFollowing]);
+        return { msg: 'Hủy theo dõi thành công' };
+      } else {
+        console.log('chưa follow');
+        const sqlFollow = `INSERT INTO follow (IdFollowers, IdFollowing, FollowDay) VALUES(?, ?, NOW())`;
+        await connection.query(sqlFollow, [IdFollowers, IdFollowing]);
+        return { msg: 'Theo dõi thành công' };
+      }
+    } catch (error) {
+      return error;
+    }
+  },
+
   // getAllUserActive: () => {
   //   sql.query('SELECT * FROM user WHERE active = 1', (err, result) => {
   //     if (err) {
@@ -160,4 +199,4 @@ const userModel = {
   // },
 };
 
-module.exports = userModel;
+export default userModel;

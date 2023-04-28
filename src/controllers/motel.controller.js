@@ -1,6 +1,10 @@
-const motelModel = require('../models/motel.model');
+import motelModel from '../models/motel.model.js';
 
 const motelController = {
+  getMotelByIdUser: async (req, res) => {
+    const result = await motelModel.getMotelByIdUser(req.params);
+    return res.status(200).send(result);
+  },
   getMotel: async (req, res) => {
     const { IdMotel } = req.params;
     console.log(IdMotel);
@@ -9,7 +13,7 @@ const motelController = {
   },
 
   getMotelsByIdWard: async (req, res) => {
-    const { start, quantity, priceMin, priceMax } = req.body;
+    const { start, quantity, priceMin, priceMax, acreageMin, acreageMax } = req.body;
     const { IdWard } = req.params;
     const motel = await motelModel.getMotelsByIdWard({
       IdWard,
@@ -17,36 +21,57 @@ const motelController = {
       quantity,
       priceMin,
       priceMax,
+      acreageMin,
+      acreageMax,
     });
-    return res.status(200).send({ motel: motel.motel, count: motel.count, msg: 'Get motel in successfully!' });
+    return res.status(200).send(motel);
   },
 
   getMotelsByIdDistrict: async (req, res) => {
-    const { start, quantity, priceMin, priceMax } = req.body;
+    const { start, quantity, priceMin, priceMax, acreageMin, acreageMax } = req.body;
     const { IdDistrict } = req.params;
-    const motel = await motelModel.getMotelsByIdDistrict({ IdDistrict, start, quantity, priceMin, priceMax });
-    return res.status(200).send({ motel: motel.motel, count: motel.count, msg: 'Get motel in successfully!' });
+    const motel = await motelModel.getMotelsByIdDistrict({
+      IdDistrict,
+      start,
+      quantity,
+      priceMin,
+      priceMax,
+      acreageMin,
+      acreageMax,
+    });
+    return res.status(200).send(motel);
   },
 
   getMotelsByIdProvince: async (req, res) => {
-    const { start, quantity, priceMin, priceMax } = req.body;
+    const { start, quantity, priceMin, priceMax, acreageMin, acreageMax } = req.body;
     const { IdProvince } = req.params;
-    const motel = await motelModel.getMotelsByIdProvince({ IdProvince, start, quantity, priceMin, priceMax });
-    return res.status(200).send({ motel: motel.motel, count: motel.count, msg: 'Get motel in successfully!' });
+    const motel = await motelModel.getMotelsByIdProvince({
+      IdProvince,
+      start,
+      quantity,
+      priceMin,
+      priceMax,
+      acreageMin,
+      acreageMax,
+    });
+    return res.status(200).send(motel);
+  },
+  getLimitInfoMotelActive: async (req, res) => {
+    const motel = await motelModel.getLimitInfoMotelActive(req.body);
+    return res.status(200).send(motel);
   },
   getAllInfoMotelActive: async (req, res) => {
-    console.log(123);
-    const motel = await motelModel.getAllInfoMotelActive(req.body);
-    return res.status(200).send({ motel: motel.motel, count: motel.count, msg: 'Get motel in successfully!' });
+    const motel = await motelModel.getAllInfoMotelActive();
+    return res.status(200).send(motel);
   },
 
   add: async (req, res) => {
     const result = await motelModel.add({
       ...req.body,
-      image: req.files,
+      media: req.files,
     });
     return res.status(200).send(result);
   },
 };
 
-module.exports = motelController;
+export default motelController;

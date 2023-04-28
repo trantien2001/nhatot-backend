@@ -1,4 +1,4 @@
-const connection = require('./db');
+import connection from './db.js';
 
 const addressModel = {
   getWard: async (IdDistrict) => {
@@ -71,4 +71,5 @@ const addressModel = {
     }
   },
 };
-module.exports = addressModel;
+
+export default addressModel;

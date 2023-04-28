@@ -1,4 +1,4 @@
-const connection = require('./db');
+import connection from './db.js';
 
 const bannerModel = {
   getAllBanner: async () => {
@@ -30,11 +30,11 @@ const bannerModel = {
   addBanner: async ({}) => {
     try {
       const sql = `INSERT INTO banner (img, active) VALUES (?,?)`;
-      const result = await connection.query(sql,[])
+      const result = await connection.query(sql, []);
     } catch (error) {
       return error;
     }
   },
 };
 
-module.exports = bannerModel;
+export default bannerModel;

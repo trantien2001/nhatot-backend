@@ -1,4 +1,4 @@
-const addressModel = require('../models/address.model');
+import addressModel from '../models/address.model.js';
 
 const addressController = {
   getWard: async (req, res) => {
@@ -27,4 +27,4 @@ const addressController = {
   },
 };
 
-module.exports = addressController;
+export default addressController;

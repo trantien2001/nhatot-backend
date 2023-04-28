@@ -1,4 +1,4 @@
-const connection = require('./db');
+import connection from './db.js';
 
 const questionModel = {
   getQuestion: async (id) => {
@@ -77,4 +77,4 @@ const questionModel = {
   // },
 };
 
-module.exports = questionModel;
+export default questionModel;

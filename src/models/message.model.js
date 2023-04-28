@@ -1,4 +1,4 @@
-const connection = require('./db');
+import connection from './db.js';
 
 const messageModel = {
   // SUBMIT MESSAGE
@@ -35,15 +35,44 @@ const messageModel = {
   // CHAT BOX
   getAllMessagesUserInMotel: async (IdMotel) => {
     try {
-      const sql = ` SELECT Content, user.IdUser, IdMotel, 
-      hour(CreateDay) as hour, minute(CreateDay) as minute 
-    FROM user, message WHERE user.IdUser = message.IdUser 
-    AND message.IdMotel = ${IdMotel}
+      const sql = `SELECT Content, user.IdUser, IdMotel, 
+        hour(CreateDay) as hour, minute(CreateDay) as minute,
+        year(CreateDay) as year, 
+        month(CreateDay) as month,
+        day(CreateDay) as day
+      FROM user, message WHERE user.IdUser = message.IdUser 
+      AND message.IdMotel = ${IdMotel}
     `;
       const result = await connection.query(sql, []);
       return result;
     } catch (error) {
       console.log(error);
+      return false;
+    }
+  },
+
+  getMessageByNameUser: async (data) => {
+    const { nameUser, IdUser } = data;
+    console.log(nameUser);
+    try {
+      const sql = `SELECT * FROM user, motel, message
+      WHERE motel.IdMotel IN
+        (SELECT message.IdMotel
+          FROM message, motel
+          WHERE message.IdUser = ${IdUser}
+          OR motel.IdMotel = message.IdMotel
+          AND motel.IdUser = ${IdUser})
+      AND message.IdMotel = motel.IdMotel AND
+      (CASE
+        WHEN (SELECT IdAuthority FROM user WHERE IdUser = ${IdUser}) = 3 THEN user.IdUser = motel.IdUser
+        WHEN (SELECT IdAuthority FROM user WHERE IdUser = ${IdUser}) = 2 THEN user.IdUser = message.IdUser
+      END)
+      AND user.Name like '%${nameUser}%'
+      GROUP BY motel.IdMotel
+      ORDER BY message.CreateDay DESC`;
+      const result = await connection.query(sql, []);
+      return result;
+    } catch (error) {
       return false;
     }
   },
@@ -91,5 +120,4 @@ const messageModel = {
     }
   },
 };
-
-module.exports = messageModel;
+export default messageModel;

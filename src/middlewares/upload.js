@@ -1,8 +1,6 @@
-const { typeImage } = require('../constants/typeFile');
+import multer from 'multer';
 
-const multer = require('multer');
-
-const upload = (path) => {
+export const upload = (path) => {
   const storage = multer.diskStorage({
     destination: (_req, file, callBack) => {
       callBack(null, `public/images/${path}`);
@@ -15,21 +13,15 @@ const upload = (path) => {
 
   const upload = multer({
     storage,
-    fileFilter: (_req, file, callBack) => {
-      if (
-        file.mimetype === typeImage.PNG ||
-        file.mimetype === typeImage.JPG ||
-        file.mimetype === typeImage.JPEG
-      )
-        callBack(null, true);
-      else {
-        callBack(null, false);
-        return callBack(new Error('Only .png, .jpg and .jpeg format allowed!'));
-      }
-    },
+    // fileFilter: (_req, file, callBack) => {
+    //   if (file.mimetype === typeImage.PNG || file.mimetype === typeImage.JPG || file.mimetype === typeImage.JPEG)
+    //     callBack(null, true);
+    //   else {
+    //     callBack(null, false);
+    //     return callBack(new Error('Only .png, .jpg and .jpeg format allowed!'));
+    //   }
+    // },
   });
 
   return upload;
 };
-
-module.exports = { upload };

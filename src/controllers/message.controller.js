@@ -1,6 +1,10 @@
-const messageModel = require('../models/message.model');
+import messageModel from '../models/message.model.js';
 
 const messageController = {
+  getMessageByNameUser: async (req, res) => {
+    const message = await messageModel.getMessageByNameUser(req.body);
+    return res.status(200).send({ message });
+  },
   deleteMessage: async (req, res) => {
     const message = await messageModel.getUserMessageList(req.body.IdMessage);
     return res.status(200).send({ message });
@@ -18,7 +22,6 @@ const messageController = {
     return res.status(200).send({ message });
   },
   getAllMessagesUserInMotel: async (req, res) => {
-    // console.log(req.params.IdMotel)
     const { IdMotel } = req.params;
     const message = await messageModel.getAllMessagesUserInMotel(IdMotel);
     return res.status(200).send({ message: 'Get message in successfully', message });
@@ -34,4 +37,4 @@ const messageController = {
   },
 };
 
-module.exports = messageController;
+export default messageController;

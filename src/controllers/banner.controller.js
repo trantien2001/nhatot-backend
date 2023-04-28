@@ -1,4 +1,4 @@
-const bannerModel = require('../models/banner.model');
+import bannerModel from '../models/banner.model.js';
 
 const bannerController = {
   getAllBanner: async (req, res) => {
@@ -14,4 +14,5 @@ const bannerController = {
     return res.status(200).send(result);
   },
 };
-module.exports = bannerController;
+
+export default bannerController;
