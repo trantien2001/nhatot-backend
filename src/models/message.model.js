@@ -1,123 +1,148 @@
 import connection from './db.js';
+import uniqid from 'uniqid';
 
 const messageModel = {
+  createRoom: async ({ IdHost, IdRenter, IdMotel }) => {
+    const sqlCheckRoom = 'SELECT * FROM room WHERE IdHost = ? AND IdRenter = ? AND IdMotel = ?';
+    const checkRoom = await connection.query(sqlCheckRoom, [IdHost, IdRenter, IdMotel]);
+    const IdRoom = uniqid('IdRoom_');
+    if (!checkRoom[0]) {
+      const sqlCreateRoom = `INSERT INTO room(IdRoom, IdHost, IdRenter, IdMotel) VALUES(?, ?, ?, ?)`;
+      await connection.query(sqlCreateRoom, [IdRoom, IdHost, IdRenter, IdMotel]);
+    }
+    // const sqlSelectIdRoom = `SELECT IdRoom FROM room WHERE IdHost = ? AND IdRenter = ? AND IdMotel = ?`;
+    // const result = await connection.query(sqlSelectIdRoom, [IdHost, IdRenter, IdMotel]);
+    return IdRoom;
+  },
+
   // SUBMIT MESSAGE
-  addMessage: async ({ Content, IdMotel, IdUser }) => {
-    try {
-      const sql1 = `INSERT INTO message(Content,CreateDay ,IdUser, IdMotel) VALUES("${Content}" ,NOW() ,${IdUser}, ${IdMotel})`;
-      const sql2 = `
-      SELECT Content, user.IdUser, IdMotel, 
+  addMessage: async ({ Content, IdRoom, IdUser }) => {
+    const IdMessage = uniqid('IdMessage_');
+    const sql1 = `INSERT INTO message(IdMessage, Content,CreateDay ,IdUser, IdRoom) VALUES(?, ? ,NOW() , ?, ?)`;
+    const sql2 = `
+      SELECT Content, user.IdUser, IdRoom, 
       hour(CreateDay) as hour, minute(CreateDay) as minute 
       FROM user, message 
       WHERE user.IdUser = message.IdUser
-      AND message.IdMotel = ${IdMotel}
+      AND message.IdRoom = ?
       `;
-      await connection.query(sql1, []);
-      const result = await connection.query(sql2, []);
-      return result;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
+    await connection.query(sql1, [IdMessage, Content, IdUser, IdRoom]);
+    const result = await connection.query(sql2, [IdRoom]);
+    return result;
   },
 
-  deleteMessage: async () => {
-    try {
-      const sql = `UPDATE message SET Active = 0 WHERE IdMessage = ${IdMessage}`;
-      const result = await connection.query(sql, []);
-      return result;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-  },
+  // deleteMessage: async () => {
+  //   const sql = `UPDATE message SET Active = 0 WHERE IdMessage = `;
+  //   const result = await connection.query(sql, [IdMessage]);
+  //   return result;
+  // },
 
   // CHAT BOX
-  getAllMessagesUserInMotel: async (IdMotel) => {
-    try {
-      const sql = `SELECT Content, user.IdUser, IdMotel, 
+  getAllMessagesUserInMotel: async (IdRoom) => {
+    const sql = `SELECT Content, user.IdUser, 
         hour(CreateDay) as hour, minute(CreateDay) as minute,
         year(CreateDay) as year, 
         month(CreateDay) as month,
         day(CreateDay) as day
-      FROM user, message WHERE user.IdUser = message.IdUser 
-      AND message.IdMotel = ${IdMotel}
+      FROM user, message, room
+      WHERE user.IdUser = message.IdUser 
+      and room.IdRoom = message.IdRoom
+      AND message.IdRoom = ?
     `;
-      const result = await connection.query(sql, []);
-      return result;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
+    const result = await connection.query(sql, [IdRoom]);
+    return result;
   },
 
   getMessageByNameUser: async (data) => {
     const { nameUser, IdUser } = data;
     console.log(nameUser);
-    try {
-      const sql = `SELECT * FROM user, motel, message
+
+    const sql = `SELECT * FROM user, motel, message
       WHERE motel.IdMotel IN
         (SELECT message.IdMotel
           FROM message, motel
-          WHERE message.IdUser = ${IdUser}
+          WHERE message.IdUser = ?
           OR motel.IdMotel = message.IdMotel
-          AND motel.IdUser = ${IdUser})
+          AND motel.IdUser = ?)
       AND message.IdMotel = motel.IdMotel AND
       (CASE
-        WHEN (SELECT IdAuthority FROM user WHERE IdUser = ${IdUser}) = 3 THEN user.IdUser = motel.IdUser
-        WHEN (SELECT IdAuthority FROM user WHERE IdUser = ${IdUser}) = 2 THEN user.IdUser = message.IdUser
+        WHEN (SELECT IdAuthority FROM user WHERE IdUser = ?) = 3 THEN user.IdUser = motel.IdUser
+        WHEN (SELECT IdAuthority FROM user WHERE IdUser = ?) = 2 THEN user.IdUser = message.IdUser
       END)
-      AND user.Name like '%${nameUser}%'
+      AND user.Name like '% ? %'
       GROUP BY motel.IdMotel
       ORDER BY message.CreateDay DESC`;
-      const result = await connection.query(sql, []);
-      return result;
-    } catch (error) {
-      return false;
-    }
+    const result = await connection.query(sql, [IdUser, IdUser, IdUser, IdUser, nameUser]);
+    return result;
   },
 
   // LIST MESSAGE SIDEBAR
   getUserMessageList: async (IdUser) => {
-    try {
-      const sql = `
-        SELECT * FROM user, motel, message
-        WHERE motel.IdMotel IN
-          (SELECT message.IdMotel
-            FROM message, motel
-            WHERE message.IdUser = ${IdUser}
-            OR motel.IdMotel = message.IdMotel
-            AND motel.IdUser = ${IdUser})
-        AND message.IdMotel = motel.IdMotel AND
-        (CASE
-          WHEN (SELECT IdAuthority FROM user WHERE IdUser = ${IdUser}) = 3 THEN user.IdUser = motel.IdUser
-          WHEN (SELECT IdAuthority FROM user WHERE IdUser = ${IdUser}) = 2 THEN user.IdUser = message.IdUser
+    // const sqlRooms = `SELECT IdMotel FROM message WHERE message.IdUser = ${IdUser} GROUP BY IdMotel`;
+    // const rooms = await connection.query(sqlRooms, []);
+    // let sqlss = '';
+    // if (rooms[0]) {
+    //   for (let i = 0; i < rooms.length; i++) {
+    //     const sqlIdUser = `SELECT IdUser FROM message
+    //       WHERE IdMotel = ${rooms[i].IdMotel}
+    //       AND IdUser != ${IdUser}
+    //       GROUP BY IdUser `;
+    //     const result = await connection.query(sqlIdUser, []);
+    //     if (result[0]) {
+    //       sqlss += `message.IdMotel = ${rooms[i].IdMotel} AND user.IdUser = ${result[0].IdUser} OR `;
+    //     }
+    //   }
+    //   sqlss = sqlss.slice(0, -3);
+    // }
+
+    const sql = `
+        SELECT message.*, user.*, room.*, motel.*,
+        timestampdiff(month, message.CreateDay, now()) as month,
+        timestampdiff(week, message.CreateDay, now()) as week,
+        timestampdiff(day, message.CreateDay, now()) as day,
+        timestampdiff(hour, message.CreateDay, now()) as hour,
+        timestampdiff(minute, message.CreateDay, now()) as minute,
+        timestampdiff(second, message.CreateDay, now()) as second
+        FROM message, user, room, motel
+        WHERE message.IdRoom in (SELECT IdRoom FROM room WHERE IdRenter = ? OR IdHost = ?) 
+        and message.IdRoom = room.IdRoom
+        and motel.IdMotel = room.IdMotel
+        and (CASE
+          when (SELECT IdAuthority FROM user WHERE IdUser = ?) = 3 THEN room.IdHost = user.IdUser
+          when (SELECT IdAuthority FROM user WHERE IdUser = ?) = 2 then room.IdRenter = user.IdUser
         END)
-        GROUP BY motel.IdMotel
         ORDER BY message.CreateDay DESC
-        `;
-      const result = await connection.query(sql, []);
-      return result;
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
+      `;
+
+    // const sql = `SELECT user.Name, motel.IdMotel, message.Content,
+    // const sql = `SELECT user.*, motel.*, message.*,
+    // timestampdiff(month, message.CreateDay, now()) as month,
+    // timestampdiff(week, message.CreateDay, now()) as week,
+    // timestampdiff(day, message.CreateDay, now()) as day,
+    // timestampdiff(hour, message.CreateDay, now()) as hour,
+    // timestampdiff(minute, message.CreateDay, now()) as minute,
+    // timestampdiff(second, message.CreateDay, now()) as second
+    // FROM user, motel, message
+    // WHERE motel.IdMotel IN (SELECT message.IdMotel FROM message WHERE message.IdUser = ${IdUser})
+    // AND (CASE
+    //   WHEN (SELECT IdAuthority FROM user WHERE IdUser = ${IdUser}) = 3
+    //   THEN user.IdUser = motel.IdUser AND message.IdMotel = motel.IdMotel
+    //   WHEN (SELECT IdAuthority FROM user WHERE IdUser = ${IdUser}) = 2
+    //   THEN ${sqlss || '123'} END)
+    // ORDER BY message.CreateDay DESC`;
+    const message = await connection.query(sql, [IdUser, IdUser, IdUser, IdUser]);
+    return { message };
   },
 
   getAllMessageInMotel: async ({ IdMotel, IdUser }) => {
-    try {
-      const sql = `SELECT * FROM message, user 
+    const sql = `SELECT * FROM message, user 
       WHERE message.active = 1 
-      AND IdMotel = ${IdMotel} 
+      AND IdMotel = ? 
       AND message.IdUser=user.IdUser
-      AND message.IdUser = ${IdUser}
+      AND message.IdUser = ?
       `;
-      const result = await connection.query(sql, []);
-      return result;
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
+    const result = await connection.query(sql, [IdMotel, IdUser]);
+    return result;
   },
 };
 export default messageModel;

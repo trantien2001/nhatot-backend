@@ -20,5 +20,5 @@ export const routes = (app) => {
   mediaRoute(router);
   addressRoute(router);
   userRoute(router);
-  app.use('/', router);
+  return app.use('/', router);
 };

@@ -2,11 +2,11 @@ import authController from '../controllers/auth.controller.js';
 import { upload } from '../middlewares/upload.js';
 
 export const authRoute = (router) => {
-  router.post('/user/login', authController.login);
-  router.post('/user/register', authController.register);
-  router.post('/user/logout', authController.logout);
-  router.post('/user/changePassword', authController.changePassword);
-  router.post('/user/changeAvatar', upload('avatars').single('avatar'), authController.changeAvatar);
-  // router.post('/user/changeBanner', upload('banners').single('banner'), authController.changeBanner);
-  router.post('/user/changeInfoUser', authController.changeInfoUser);
+  router.post('/auth/login', authController.login);
+  router.post('/auth/register', authController.register);
+  router.post('/auth/logout', authController.logout);
+  router.post('/auth/changePassword', authController.changePassword);
+  router.post('/auth/changeAvatar', upload('avatars').single('avatar'), authController.changeAvatar);
+  // router.post('/auth/changeBanner', upload('banners').single('banner'), authController.changeBanner);
+  router.post('/auth/changeInfoUser', authController.changeInfoUser);
 };
