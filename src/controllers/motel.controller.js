@@ -3,6 +3,10 @@ import motelModel from '../models/motel.model.js';
 import { catchAsync } from '../utils/catchAsync.js';
 
 const motelController = {
+  getMotelHomePage: catchAsync(async (req, res) => {
+    const result = await motelModel.getMotelHomePage();
+    return res.status(200).send(result);
+  }),
   getMotelFavourite: catchAsync(async (req, res) => {
     const result = await motelModel.getMotelFavourite(req.params);
     return res.status(200).send(result);
@@ -98,7 +102,7 @@ const motelController = {
       mediaDelete: JSON.parse(req.body.mediaDelete),
       media: req.files,
     });
-
+    return res.status(200).send(result);
     // io.emit('post_motel', { notifi, followers: result.followers });
     // return res.status(200).send(result);
   }),

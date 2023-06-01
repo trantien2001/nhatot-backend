@@ -5,23 +5,25 @@ const messageModel = {
   createRoom: async ({ IdHost, IdRenter, IdMotel }) => {
     const sqlCheckRoom = 'SELECT * FROM room WHERE IdHost = ? AND IdRenter = ? AND IdMotel = ?';
     const checkRoom = await connection.query(sqlCheckRoom, [IdHost, IdRenter, IdMotel]);
-    const IdRoom = uniqid('IdRoom_');
-    if (!checkRoom[0]) {
+    if (checkRoom.length > 0) {
+      return { IdRoom: checkRoom[0].IdRoom };
+    } else {
+      const IdRoom = uniqid('IdRoom_');
       const sqlCreateRoom = `INSERT INTO room(IdRoom, IdHost, IdRenter, IdMotel) VALUES(?, ?, ?, ?)`;
       await connection.query(sqlCreateRoom, [IdRoom, IdHost, IdRenter, IdMotel]);
+      return { IdRoom };
     }
     // const sqlSelectIdRoom = `SELECT IdRoom FROM room WHERE IdHost = ? AND IdRenter = ? AND IdMotel = ?`;
     // const result = await connection.query(sqlSelectIdRoom, [IdHost, IdRenter, IdMotel]);
-    return IdRoom;
   },
 
   // SUBMIT MESSAGE
   addMessage: async ({ Content, IdRoom, IdUser }) => {
     const IdMessage = uniqid('IdMessage_');
-    const sql1 = `INSERT INTO message(IdMessage, Content,CreateDay ,IdUser, IdRoom) VALUES(?, ? ,NOW() , ?, ?)`;
+    const sql1 = `INSERT INTO message(IdMessage, Content, CreateDay ,IdUser, IdRoom) VALUES(?, ? ,NOW() , ?, ?)`;
     const sql2 = `
       SELECT Content, user.IdUser, IdRoom, 
-      hour(CreateDay) as hour, minute(CreateDay) as minute 
+      hour(message.CreateDay) as hour, minute(message.CreateDay) as minute 
       FROM user, message 
       WHERE user.IdUser = message.IdUser
       AND message.IdRoom = ?
@@ -40,14 +42,16 @@ const messageModel = {
   // CHAT BOX
   getAllMessagesUserInMotel: async (IdRoom) => {
     const sql = `SELECT Content, user.IdUser, 
-        hour(CreateDay) as hour, minute(CreateDay) as minute,
-        year(CreateDay) as year, 
-        month(CreateDay) as month,
-        day(CreateDay) as day
+        hour(message.CreateDay) as hour, minute(message.CreateDay) as minute,
+        year(message.CreateDay) as year, 
+        month(message.CreateDay) as month,
+        day(message.CreateDay) as day,
+        message.CreateDay
       FROM user, message, room
       WHERE user.IdUser = message.IdUser 
       and room.IdRoom = message.IdRoom
       AND message.IdRoom = ?
+      GROUP BY message.CreateDay ASC
     `;
     const result = await connection.query(sql, [IdRoom]);
     return result;

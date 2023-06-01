@@ -8,6 +8,8 @@ import { motelRoute } from './motel.route.js';
 import { mediaRoute } from './media.route.js';
 import { addressRoute } from './address.route.js';
 import { userRoute } from './user.route.js';
+import { adminRoute } from './admin.route.js';
+
 
 var router = express.Router();
 
@@ -20,5 +22,6 @@ export const routes = (app) => {
   mediaRoute(router);
   addressRoute(router);
   userRoute(router);
+  adminRoute(router);
   return app.use('/', router);
 };

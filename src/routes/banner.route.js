@@ -5,4 +5,5 @@ export const bannerRoute = (router) => {
   // router.get('/banner', bannerController.getAllBanner);
   // router.post('/banner', bannerController.add);
   router.get('/banner:active', bannerController.getAllBannerActive);
+
 };

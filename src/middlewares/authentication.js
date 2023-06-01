@@ -1,6 +1,6 @@
-import { validateToken, validateRefreshToken, generateToken } from './JWT';
+import { validateToken, validateRefreshToken, generateToken } from './JWT.js';
 import httpStatus from 'http-status';
-import ApiError from '../utils/ApiError';
+import ApiError from '../utils/ApiError.js';
 
 export const isAuth = async (req, res, next) => {
   // Lấy access token từ header

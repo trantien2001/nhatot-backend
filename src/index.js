@@ -3,18 +3,26 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { routes } from './routes/route.js';
-import { createServer } from 'http';
+import http, { createServer } from 'http';
 import { Server } from 'socket.io';
 import { errorConverter, errorHandler } from './middlewares/error.js';
 
 dotenv.config();
 const app = express();
 
+// app.all('/', function (req, res, next) {
+//   res.header('Access-Control-Allow-Origin', '*');
+//   res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+//   next();
+// });
+
 // socket.io
+
 const server = createServer(app);
 export const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: '*',
+    // origin: 'http://localhost:3000',
     methods: ['GET', 'POST'],
   },
 });

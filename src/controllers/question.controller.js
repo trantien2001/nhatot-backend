@@ -23,8 +23,13 @@ const questionController = {
   updateQuestion: catchAsync(async (req, res) => {
     console.log(1234);
     const { question, active } = req.body;
-    const { id } = req.params;
-    const result = await questionModel.updateQuestion({ question, active, id });
+    const { IdQuestion } = req.params;
+    const result = await questionModel.updateQuestion({ question, active, IdQuestion });
+    return res.status(200).send(result);
+  }),
+  deleteQuestion: catchAsync(async (req, res) => {
+    const { IdQuestion } = req.params;
+    const result = await questionModel.deleteQuestion(IdQuestion);
     return res.status(200).send(result);
   }),
 };

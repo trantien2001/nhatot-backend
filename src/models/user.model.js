@@ -1,12 +1,16 @@
 import connection from './db.js';
 import uniqid from 'uniqid';
+import bcrypt from 'bcrypt';
+const saltRounds = 10;
 
 const userModel = {
   addFavourite: async (data) => {
     const { IdUser, IdMotel } = data;
     const IdFavourite = uniqid('IdFavourite_');
-    const sqlAddFavourite = 'INSERT INTO favourite(IdFavourite, IdUser, IdMotel, CreateDay) VALUE(?, ?, ?, NOW())';
-    const favourite = await connection.query(sqlAddFavourite, [IdFavourite, IdUser, IdMotel]);
+    const sqlAddFavourite = 'INSERT INTO favourite(IdFavourite, IdUser, IdMotel, CreateDay) VALUES(?, ?, ?, NOW())';
+    await connection.query(sqlAddFavourite, [IdFavourite, IdUser, IdMotel]);
+    const sqlSelectFavourite = 'SELECT IdMotel FROM favourite WHERE IdUser = ?';
+    const favourite = await connection.query(sqlSelectFavourite, [IdUser]);
     return { favourite, msg: 'Yêu thích thành công' };
   },
 
@@ -14,7 +18,9 @@ const userModel = {
     const { IdUser, IdMotel } = data;
 
     const sqlDeleteFavourite = 'DELETE FROM favourite WHERE IdUser = ? AND IdMotel = ?';
-    const favourite = await connection.query(sqlDeleteFavourite, [IdUser, IdMotel]);
+    await connection.query(sqlDeleteFavourite, [IdUser, IdMotel]);
+    const sqlSelectFavourite = 'SELECT IdMotel FROM favourite WHERE IdUser = ?';
+    const favourite = await connection.query(sqlSelectFavourite, [IdUser]);
     return { favourite, msg: 'Hủy yêu thích thành công' };
   },
 
@@ -24,15 +30,15 @@ const userModel = {
     const sqlDelete = `DELETE FROM notifi WHERE IdNotifi = ?`;
     await connection.query(sqlDelete, [IdNotifi]);
     const sqlSelectNotifi = `SELECT 
-      timestampdiff(month, CreateDay, now()) as month,
-      timestampdiff(week, CreateDay, now()) as week,
-      timestampdiff(day, CreateDay, now()) as day,
-      timestampdiff(hour, CreateDay, now()) as hour,
-      timestampdiff(minute, CreateDay, now()) as minute,
-      timestampdiff(second, CreateDay, now()) as second,
+      timestampdiff(month, notifi.CreateDay, now()) as month,
+      timestampdiff(week, notifi.CreateDay, now()) as week,
+      timestampdiff(day, notifi.CreateDay, now()) as day,
+      timestampdiff(hour, notifi.CreateDay, now()) as hour,
+      timestampdiff(minute, notifi.CreateDay, now()) as minute,
+      timestampdiff(second, notifi.CreateDay, now()) as second,
       Content, IdReceiver, IdNotifi, Avatar
       FROM notifi, user WHERE IdReceiver = ? AND user.IdUser = notifi.IdSender
-      ORDER BY CreateDay DESC
+      ORDER BY notifi.CreateDay DESC
       `;
     const notifi = await connection.query(sqlSelectNotifi, [IdUser]);
     return { notifi, msg: 'get notifi in successfully!' };
@@ -40,15 +46,15 @@ const userModel = {
   getAllNotifiByIdUser: async (data) => {
     const { IdUser } = data;
     const sql = `SELECT 
-      timestampdiff(month, CreateDay, now()) as month,
-      timestampdiff(week, CreateDay, now()) as week,
-      timestampdiff(day, CreateDay, now()) as day,
-      timestampdiff(hour, CreateDay, now()) as hour,
-      timestampdiff(minute, CreateDay, now()) as minute,
-      timestampdiff(second, CreateDay, now()) as second,
+      timestampdiff(month, notifi.CreateDay, now()) as month,
+      timestampdiff(week, notifi.CreateDay, now()) as week,
+      timestampdiff(day, notifi.CreateDay, now()) as day,
+      timestampdiff(hour, notifi.CreateDay, now()) as hour,
+      timestampdiff(minute, notifi.CreateDay, now()) as minute,
+      timestampdiff(second, notifi.CreateDay, now()) as second,
       Content, IdReceiver, IdNotifi, Avatar
       FROM notifi, user WHERE IdReceiver = ? AND user.IdUser = notifi.IdSender
-      ORDER BY CreateDay DESC
+      ORDER BY notifi.CreateDay DESC
       `;
     const notifi = await connection.query(sql, [IdUser]);
     return { notifi, msg: 'get notifi in successfully!' };
@@ -63,6 +69,12 @@ const userModel = {
       timestampdiff(hour, operatingTime, now()) as hourOperatingTime,
       timestampdiff(minute, operatingTime, now()) as minuteOperatingTime,
       timestampdiff(second, operatingTime, now()) as secondOperatingTime,
+      timestampdiff(month, CreateDay, now()) as monthCreateDay,
+      timestampdiff(week, CreateDay, now()) as weekCreateDay,
+      timestampdiff(day, CreateDay, now()) as dayCreateDay,
+      timestampdiff(hour, CreateDay, now()) as hourCreateDay,
+      timestampdiff(minute, CreateDay, now()) as minuteCreateDay,
+      timestampdiff(second, CreateDay, now()) as secondCreateDay,
       user.*
       FROM user WHERE user.IdUser = ?
     `;
@@ -114,15 +126,6 @@ const userModel = {
         )
         `;
     const result = await connection.query(sql, [IdUser, IdRoom, IdUser, IdRoom]);
-    return {
-      msg: 'Get user in successfully!',
-      user: result,
-    };
-  },
-
-  getAllUser: async () => {
-    const sql = 'SELECT IdUser, Address, BirthDay, Email, Gender, Name, PhoneNumber FROM user';
-    const result = await connection.query(sql, []);
     return {
       msg: 'Get user in successfully!',
       user: result,
@@ -201,27 +204,21 @@ const userModel = {
       return { msg: 'Hủy theo dõi thành công', nameFollow: `${userFollow[0].Name} đã theo dõi bạn` };
     } else {
       // console.log('chưa follow');
-      
-      const sqlFollow = `INSERT INTO follow (IdFollowers, IdFollowing, FollowDay) VALUES(?, ?, NOW())`;
-      await connection.query(sqlFollow, [IdFollowers, IdFollowing]);
-      const IdNotifi = uniqid('IdNotifi_')
-      const sqlAddNotifi = 'INSERT INTO notifi(IdNotifi, IdSender, IdReceiver, Content, CreateDay) VALUES(?, ?, ?, ?, NOW())';
-      await connection.query(sqlAddNotifi, [IdNotifi, IdFollowers, IdFollowing, `${userFollow[0].Name} đã theo dõi bạn`]);
+      const IdFollow = uniqid('IdFollow_');
+      const sqlFollow = `INSERT INTO follow (IdFollow, IdFollowers, IdFollowing, FollowDay) VALUES(?, ?, ?, NOW())`;
+      await connection.query(sqlFollow, [IdFollow, IdFollowers, IdFollowing]);
+      const IdNotifi = uniqid('IdNotifi_');
+      const sqlAddNotifi =
+        'INSERT INTO notifi(IdNotifi, IdSender, IdReceiver, Content, CreateDay) VALUES(?, ?, ?, ?, NOW())';
+      await connection.query(sqlAddNotifi, [
+        IdNotifi,
+        IdFollowers,
+        IdFollowing,
+        `${userFollow[0].Name} đã theo dõi bạn`,
+      ]);
       return { msg: 'Theo dõi thành công', nameFollow: `${userFollow[0].Name} đã theo dõi bạn` };
     }
   },
-
-  // getAllUserActive: () => {
-  //   sql.query('SELECT * FROM user WHERE active = 1', (err, result) => {
-  //     if (err) {
-  //       return res.status(400).send({ msg: err });
-  //     }
-  //     return res.status(200).send({
-  //       msg: 'Get user in successfully!',
-  //       user: result,
-  //     });
-  //   });
-  // },
 };
 
 export default userModel;

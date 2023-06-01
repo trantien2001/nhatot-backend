@@ -5,7 +5,7 @@ const bannerModel = {
     const sql = 'SELECT * FROM banner';
     const result = await connection.query(sql, []);
     return {
-      msg: 'Get banner in successfully!',
+      msg: 'Lấy danh sách banner thành công',
       banner: result,
     };
   },
@@ -19,11 +19,14 @@ const bannerModel = {
     };
   },
 
-  addBanner: async ({}) => {
-    //
-    //   const sql = `INSERT INTO banner (img, active) VALUES (?,?)`;
-    //   const result = await connection.query(sql, []);
-  },
+  // addBanner: async ({}) => {
+  //   //
+  //   //   const sql = `INSERT INTO banner (img, active) VALUES (?,?)`;
+  //   //   const result = await connection.query(sql, []);
+  // },
+
+
+  
 };
 
 export default bannerModel;

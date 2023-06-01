@@ -13,6 +13,7 @@ export const userRoute = (router) => {
   // router.get('/user/renter', userController.getRenter);
   // router.get('/renter/:IdUser', userController.getRenterById);
   // router.get('/host/:IdUser', userController.getHostById);
-  router.get('/users', userController.getAllUser);
   router.post('/user/:IdUser', userController.getUser);
+  
+  
 };

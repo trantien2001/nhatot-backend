@@ -5,6 +5,81 @@ import uniqid from 'uniqid';
 const __dirname = path.resolve();
 
 const motelModel = {
+  getMotelHomePage: async () => {
+    const sqlGetMotelNew = `
+    SELECT
+      timestampdiff(month, motel.CreateDay, now()) as month, 
+      timestampdiff(week, motel.CreateDay, now()) as week,
+      timestampdiff(day, motel.CreateDay, now()) as day, 
+      timestampdiff(hour, motel.CreateDay, now()) as hour,
+      timestampdiff(minute, motel.CreateDay, now()) as minute,
+      timestampdiff(second, motel.CreateDay, now()) as second,
+      Avatar, Name, motel.IdMotel, Title, Price,
+      Acreage, Deposits, Status, Description,
+      DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+      srcMedia, motel.Address, WardPrefix, WardName,
+      DistrictPrefix, DistrictName, ProvinceName
+      FROM motel, media, ward, district, province, user
+    WHERE motel.IdWard = ward.IdWard
+    AND ward.IdDistrict = district.IdDistrict
+    AND district.IdProvince = province.IdProvince
+    AND motel.Active = true
+    AND user.IdUser = motel.IdUser
+    AND media.IdMotel = Motel.IdMotel
+    GROUP by Motel.IdMotel
+    ORDER by motel.CreateDay DESC
+    LIMIT 0, 10
+    `;
+    const motelNew = await connection.query(sqlGetMotelNew, []);
+
+    const sqlTopMotelFavourite = `
+      SELECT IdMotel, COUNT(IdFavourite) as count FROM favourite 
+      GROUP BY IdMotel ORDER BY count DESC LIMIT 0, 10
+    `;
+    const topMotelFavourite = await connection.query(sqlTopMotelFavourite, []);
+    console.log(topMotelFavourite);
+    let chuoi = '';
+    topMotelFavourite.map((item) => {
+      chuoi += `'${item.IdMotel}', `;
+    });
+    chuoi = chuoi.slice(0, -2);
+    console.log(chuoi);
+    const sqlMotelFavourite = `
+    SELECT
+    timestampdiff(month, motel.CreateDay, now()) as month, 
+    timestampdiff(week, motel.CreateDay, now()) as week,
+    timestampdiff(day, motel.CreateDay, now()) as day, 
+    timestampdiff(hour, motel.CreateDay, now()) as hour,
+    timestampdiff(minute, motel.CreateDay, now()) as minute,
+    timestampdiff(second, motel.CreateDay, now()) as second,
+    Avatar, Name, motel.IdMotel, Title, Price,
+    Acreage, Deposits, Status, Description,
+    DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+    srcMedia, motel.Address, WardPrefix, WardName,
+    DistrictPrefix, DistrictName, ProvinceName
+    FROM motel, media, ward, district, province, user
+  WHERE motel.IdWard = ward.IdWard
+  AND ward.IdDistrict = district.IdDistrict
+  AND district.IdProvince = province.IdProvince
+  AND motel.Active = true
+  AND user.IdUser = motel.IdUser
+  AND media.IdMotel = Motel.IdMotel
+  AND motel.IdMotel IN (${chuoi})
+  GROUP by Motel.IdMotel
+  ORDER by motel.CreateDay DESC
+    `;
+
+    const motelFavourite = await connection.query(sqlMotelFavourite, []);
+
+    motelFavourite.map((itemBig) => {
+      topMotelFavourite.map((itemSmall) => {
+        if (itemBig.IdMotel == itemSmall.IdMotel) {
+          itemBig.count = itemSmall.count;
+        }
+      });
+    });
+    return { motelNew, motelFavourite, msg: 'Lấy danh sách nhà trọ thành cồng' };
+  },
   getMotelFavourite: async (data) => {
     const { IdUser } = data;
     const sqlGetMotelFavourite = `SELECT user.*, motel.*, favourite.*, media.*, ward.*, district.*, province.*, 
@@ -25,7 +100,10 @@ const motelModel = {
         GROUP BY motel.IdMotel
       `;
     const motel = await connection.query(sqlGetMotelFavourite, [IdUser]);
-    return { motel, msg: 'Lấy thành công danh sách nhà trọ' };
+    const sqlSelectFavourite = 'SELECT IdMotel FROM favourite WHERE IdUser = ?';
+
+    const favourite = await connection.query(sqlSelectFavourite, [IdUser]);
+    return { motel, favourite, msg: 'Lấy thành công danh sách nhà trọ' };
   },
   getMotelByIdUser: async (data) => {
     const { IdUser } = data;
@@ -53,7 +131,7 @@ const motelModel = {
       timestampdiff(second, operatingTime, now()) as secondOperatingTime,
       Avatar, motel.IdMotel, motel.IdUser, Name,
       Title, Price, Acreage, Deposits,Status,Description,
-      DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+      DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
       motel.Address, WardPrefix, WardName,
       DistrictPrefix, DistrictName, ProvinceName, activeStatus, PhoneNumber
       FROM motel, ward, district, province, user
@@ -75,6 +153,7 @@ const motelModel = {
   },
 
   getInfoMotelByIdRoom: async (IdRoom) => {
+    console.log('idRoom: ', IdRoom);
     const sqlGetIdMotel = `SELECT IdMotel FROM room WHERE IdRoom = ?`;
     const idMotel = await connection.query(sqlGetIdMotel, [IdRoom]);
     console.log(idMotel);
@@ -93,7 +172,7 @@ const motelModel = {
         timestampdiff(second, operatingTime, now()) as secondOperatingTime,
         Avatar, motel.IdMotel, motel.IdUser, Name, Type,
         Title, Price, Acreage, Deposits,Status,Description,
-        DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+        DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
         srcMedia, motel.Address, WardPrefix, WardName,
         DistrictPrefix, DistrictName, ProvinceName, activeStatus, PhoneNumber
         FROM motel, media, ward, district, province, user
@@ -105,11 +184,11 @@ const motelModel = {
         AND motel.IdMotel = ?
         GROUP by motel.IdMotel
         `;
-    const motel = await connection.query(sql, [idMotel[0].IdMotel]);
+    const motel = await connection.query(sql, [idMotel[0]?.IdMotel]);
 
     const sqlMedia = `SELECT * FROM media WHERE IdMotel = ?`;
-    const media = await connection.query(sqlMedia, [idMotel[0].IdMotel]);
-    return { motel, media, msg: 'Get motel in successfully!' };
+    const media = await connection.query(sqlMedia, [idMotel[0]?.IdMotel]);
+    return { motel, media, msg: 'Lấy danh sách nhà trọ thành công' };
   },
   getMotelsByIdWard: async ({ IdWard, start, quantity, priceMin, priceMax, acreageMin, acreageMax, IdUser }) => {
     const sqlCountMotel = `SELECT Name FROM motel, ward, district, province, user
@@ -129,11 +208,11 @@ const motelModel = {
         timestampdiff(week, motel.CreateDay, now()) as week,
         timestampdiff(day, motel.CreateDay, now()) as day, 
         timestampdiff(hour, motel.CreateDay, now()) as hour,
-        timestampdiff(minute, CreateDay, now()) as minute,
-        timestampdiff(second, CreateDay, now()) as second,
+        timestampdiff(minute, motel.CreateDay, now()) as minute,
+        timestampdiff(second, motel.CreateDay, now()) as second,
         Avatar, Name, motel.IdMotel, Title, Price, Acreage,
         Deposits, Status, Description,
-        DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+        DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
         srcMedia, motel.Address, WardPrefix,  WardName,
         DistrictPrefix, DistrictName, ProvinceName
         FROM motel, media, ward, district, province, user
@@ -194,11 +273,11 @@ const motelModel = {
       timestampdiff(week, motel.CreateDay, now()) as week,
       timestampdiff(day, motel.CreateDay, now()) as day, 
       timestampdiff(hour, motel.CreateDay, now()) as hour,
-      timestampdiff(minute, CreateDay, now()) as minute,
-      timestampdiff(second, CreateDay, now()) as second,
+      timestampdiff(minute, motel.CreateDay, now()) as minute,
+      timestampdiff(second, motel.CreateDay, now()) as second,
       Avatar, Name, motel.IdMotel, Title, Price, Acreage,
       Deposits, Status, Description,
-      DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+      DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
       srcMedia, motel.Address, WardPrefix, WardName,
       DistrictPrefix, DistrictName, ProvinceName
       FROM motel, media, ward, district, province, user
@@ -258,11 +337,11 @@ const motelModel = {
       timestampdiff(week, motel.CreateDay, now()) as week,
       timestampdiff(day, motel.CreateDay, now()) as day, 
       timestampdiff(hour, motel.CreateDay, now()) as hour,
-      timestampdiff(minute, CreateDay, now()) as minute,
-      timestampdiff(second, CreateDay, now()) as second,
+      timestampdiff(minute, motel.CreateDay, now()) as minute,
+      timestampdiff(second, motel.CreateDay, now()) as second,
       Avatar, Name, motel.IdMotel, Title, Price,
       Acreage, Deposits, Status, Description,
-      DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+      DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
       srcMedia, motel.Address, WardPrefix, WardName,
       DistrictPrefix, DistrictName, ProvinceName
       FROM motel, media, ward, district, province, user
@@ -303,41 +382,63 @@ const motelModel = {
       AND district.IdProvince = province.IdProvince
       AND motel.Active = true
       AND user.IdUser = motel.IdUser
-      AND media.IdMotel = Motel.IdMotel
+      AND media.IdMotel = motel.IdMotel
       AND Price BETWEEN ? AND ?
       AND Acreage BETWEEN ? AND ?
-      GROUP by Motel.IdMotel
-      ORDER by CreateDay DESC
+      GROUP by motel.IdMotel
+      ORDER by motel.CreateDay DESC
       `;
 
-    
-    
     const sqlSelectLimitMotel = `SELECT
       timestampdiff(month, motel.CreateDay, now()) as month, 
       timestampdiff(week, motel.CreateDay, now()) as week,
       timestampdiff(day, motel.CreateDay, now()) as day, 
       timestampdiff(hour, motel.CreateDay, now()) as hour,
-      timestampdiff(minute, CreateDay, now()) as minute,
-      timestampdiff(second, CreateDay, now()) as second,
+      timestampdiff(minute, motel.CreateDay, now()) as minute,
+      timestampdiff(second, motel.CreateDay, now()) as second,
       Avatar, Name, motel.IdMotel, Title, Price, Acreage,
       Deposits, Status, Description,
       DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
       srcMedia, motel.Address, WardPrefix, WardName,
       DistrictPrefix, DistrictName, ProvinceName
-      FROM motel, media, ward, district, province, user
-      WHERE motel.IdWard = ward.IdWard
-      AND ward.IdDistrict = district.IdDistrict
-      AND district.IdProvince = province.IdProvince
-      AND motel.Active = true
-      AND user.IdUser = motel.IdUser
+      FROM motel LEFT JOIN media ON motel.IdMotel = media.IdMotel 
+      LEFT JOIN ward ON motel.IdWard = ward.IdWard 
+      LEFT JOIN district ON ward.IdDistrict = district.IdDistrict
+      LEFT JOIN province ON district.IdProvince = province.IdProvince
+      LEFT JOIN user ON user.IdUser = motel.IdUser
+      WHERE motel.Active = true
       AND Price BETWEEN ? AND ?
       AND Acreage BETWEEN ? AND ?
-      OR media.IdMotel = Motel.IdMotel
-      GROUP by Motel.IdMotel
-      ORDER by CreateDay DESC
+      GROUP by motel.IdMotel
+      ORDER by motel.CreateDay DESC
       LIMIT ?, ?
       `;
-    
+    // const sqlSelectLimitMotel = `SELECT
+    //   timestampdiff(month, motel.CreateDay, now()) as month,
+    //   timestampdiff(week, motel.CreateDay, now()) as week,
+    //   timestampdiff(day, motel.CreateDay, now()) as day,
+    //   timestampdiff(hour, motel.CreateDay, now()) as hour,
+    //   timestampdiff(minute, CreateDay, now()) as minute,
+    //   timestampdiff(second, CreateDay, now()) as second,
+    //   Avatar, Name, motel.IdMotel, Title, Price, Acreage,
+    //   Deposits, Status, Description,
+    //   DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+    //   srcMedia, motel.Address, WardPrefix, WardName,
+    //   DistrictPrefix, DistrictName, ProvinceName
+    //   FROM motel, media, ward, district, province, user
+    //   WHERE motel.IdWard = ward.IdWard
+    //   AND ward.IdDistrict = district.IdDistrict
+    //   AND district.IdProvince = province.IdProvince
+    //   AND motel.Active = true
+    //   AND user.IdUser = motel.IdUser
+    //   AND Price BETWEEN ? AND ?
+    //   AND Acreage BETWEEN ? AND ?
+    //   AND media.IdMotel = motel.IdMotel
+    //   GROUP by motel.IdMotel
+    //   ORDER by CreateDay DESC
+    //   LIMIT ?, ?
+    //   `;
+
     const sqlFavourite = 'SELECT IdMotel FROM favourite WHERE IdUser = ?';
     const favourite = await connection.query(sqlFavourite, [IdUser]);
     const count = await connection.query(sqlCountMotel, [priceMin, priceMax, acreageMin, acreageMax]);
@@ -360,8 +461,8 @@ const motelModel = {
       timestampdiff(week, motel.CreateDay, now()) as week,
       timestampdiff(day, motel.CreateDay, now()) as day, 
       timestampdiff(hour, motel.CreateDay, now()) as hour,
-      timestampdiff(minute, CreateDay, now()) as minute,
-      timestampdiff(second, CreateDay, now()) as second,
+      timestampdiff(minute, motel.CreateDay, now()) as minute,
+      timestampdiff(second, motel.CreateDay, now()) as second,
       Avatar, Name, motel.IdMotel, Title, Price, Acreage,
       Deposits, Status, Description,
       DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
@@ -375,10 +476,10 @@ const motelModel = {
       AND user.IdUser = motel.IdUser
       AND media.IdMotel = Motel.IdMotel
       GROUP by Motel.IdMotel
-      ORDER by CreateDay DESC
+      ORDER by motel.CreateDay DESC
       `;
-    const result = await connection.query(sql, []);
-    return { motel: result };
+    const motel = await connection.query(sql, []);
+    return { motel };
   },
 
   // Thêm trọ
@@ -420,14 +521,11 @@ const motelModel = {
       result[0].IdWard,
     ]);
 
-    const sql2 = 'SELECT COUNT(*) as count FROM motel';
-    const countMotel = await connection.query(sql2, []);
-
-    let sql3 = `INSERT INTO media (IdMedia, srcMedia, Type, IdMotel) VALUES `;
+    let sqlIsertMedia = `INSERT INTO media (IdMedia, srcMedia, Type, IdMotel) VALUES `;
 
     for (let i = 0; i < media?.length; i++) {
       const IdMedia = uniqid('IdMedia_');
-      sql3 += `('${IdMedia}', '${media[i]?.filename}',
+      sqlIsertMedia += `('${IdMedia}', '${media[i]?.filename}',
         '${
           media[i]?.filename.split('.')[1] == 'jpg' || media[i]?.filename.split('.')[1] == 'png'
             ? 'image'
@@ -435,23 +533,27 @@ const motelModel = {
             ? 'video'
             : ''
         }',
-        ${countMotel[0]?.count}),`;
+        '${IdMotel}'),`;
     }
 
-    sql3 = sql3.slice(0, -1);
-    console.log(sql3);
-    await connection.query(sql3, []);
+    sqlIsertMedia = sqlIsertMedia.slice(0, -1);
+    console.log(sqlIsertMedia);
+    await connection.query(sqlIsertMedia, []);
 
     const sqlFollowers = `SELECT IdFollowers FROM follow WHERE IdFollowing = ?`;
     const followers = await connection.query(sqlFollowers, [IdUser]);
 
-    let sqlAddNotifi = `INSERT INTO notifi(IdNotifi, IdSender, IdReceiver, Content, CreateDay) VALUES`;
-    for (let i = 0; i < followers.length; i++) {
-      const IdNotifi = uniqid('IdNotifi_');
-      sqlAddNotifi += `('${IdNotifi}', ${IdUser}, ${followers[i].IdFollowers}, '${notifi}', NOW()),`;
+    if (followers.length > 0) {
+      let sqlAddNotifi = `INSERT INTO notifi(IdNotifi, IdSender, IdReceiver, Content, CreateDay, Active) VALUES`;
+      for (let i = 0; i < followers.length; i++) {
+        const IdNotifi = uniqid('IdNotifi_');
+        sqlAddNotifi += `('${IdNotifi}', '${IdUser}', '${followers[i].IdFollowers}', '${notifi}', NOW(), 1),`;
+      }
+      sqlAddNotifi = sqlAddNotifi.slice(0, -1);
+      console.log(sqlAddNotifi);
+      await connection.query(sqlAddNotifi, []);
     }
-    sqlAddNotifi = sqlAddNotifi.slice(0, -1);
-    await connection.query(sqlAddNotifi, []);
+
     return { msg: 'Đăng nhà trọ thành công', followers, notifi };
   },
   // Cập nhật trọ
@@ -514,9 +616,9 @@ const motelModel = {
               };
             }
           });
-          console.log('delete success!');
+          console.log('Xóa ảnh trong thư mục thành công');
         } else {
-          console.log("can't find out file in server " + ' in ' + imagePath);
+          console.log('Không tìm thấy ảnh trong ' + imagePath);
         }
       }
 
@@ -546,6 +648,7 @@ const motelModel = {
       console.log(addMedia);
       await connection.query(addMedia, []);
     }
+    return { msg: 'Chỉnh sửa nhà trọ thành công' };
   },
 
   getMotelsByPriceRangeInDistrict: async ({ begin, end, start, IdDistrict, quantity }) => {
@@ -566,11 +669,11 @@ const motelModel = {
     timestampdiff(week, motel.CreateDay, now()) as week,
     timestampdiff(day, motel.CreateDay, now()) as day,
     timestampdiff(hour, motel.CreateDay, now()) as hour,
-    timestampdiff(minute, CreateDay, now()) as minute,
-    timestampdiff(second, CreateDay, now()) as second,
+    timestampdiff(minute, motel.CreateDay, now()) as minute,
+    timestampdiff(second, motel.CreateDay, now()) as second,
     Avatar, Name, motel.IdMotel, Title, Acreage, Deposits,
     Status, Description,
-    DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+    DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
     srcMedia, motel.Address, WardPrefix, WardName,
     DistrictPrefix, DistrictName, ProvinceName, Price
     FROM motel, media, ward, district, province, user
@@ -609,11 +712,11 @@ const motelModel = {
       timestampdiff(week, motel.CreateDay, now()) as week,
       timestampdiff(day, motel.CreateDay, now()) as day, 
       timestampdiff(hour, motel.CreateDay, now()) as hour,
-      timestampdiff(minute, CreateDay, now()) as minute,
-      timestampdiff(second, CreateDay, now()) as second,
+      timestampdiff(minute, motel.CreateDay, now()) as minute,
+      timestampdiff(second, motel.CreateDay, now()) as second,
       Avatar, Name, motel.IdMotel, Title, Price, Acreage,
       Deposits, Status, Description,
-      DATE_FORMAT(CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
+      DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
       srcMedia, motel.Ad DistrictName, ProvinceName
       FROM motel, media, ward, district, province, user
     WHERE motel.IdWard = ward.IdWard

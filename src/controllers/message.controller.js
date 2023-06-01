@@ -5,7 +5,7 @@ import { catchAsync } from '../utils/catchAsync.js';
 const messageController = {
   createRoom: catchAsync(async (req, res) => {
     const IdRoom = await messageModel.createRoom(req.body);
-    return res.status(200).send({ IdRoom });
+    return res.status(200).send(IdRoom);
   }),
   getMessageByNameUser: catchAsync(async (req, res) => {
     const message = await messageModel.getMessageByNameUser(req.body);

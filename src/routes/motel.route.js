@@ -13,7 +13,9 @@ export const motelRoute = (router) => {
   router.post('/motels', motelController.getAllInfoMotelActive);
   router.get('/getMotelByIdUser/:IdUser', motelController.getMotelByIdUser);
   router.get('/getMotelFavourite/:IdUser', motelController.getMotelFavourite);
-
+  
+  router.get('/getMotelHomePage', motelController.getMotelHomePage);
+  
   // router.get('/motelsByPriceRangeInProvince', motelController.getMotelsByPriceRangeInProvince);
   // router.get('/motelsByPriceRangeInDistrict', motelController.getMotelsByPriceRangeInDistrict);
   // router.get('/motelsByPriceRangeInWard', motelController.getMotelsByPriceRangeInWard);

@@ -4,6 +4,8 @@ import userModel from '../models/user.model.js';
 import { catchAsync } from '../utils/catchAsync.js';
 
 const userController = {
+  
+
   addFavourite: catchAsync(async (req, res) => {
     const favourite = await userModel.addFavourite(req.body);
     return res.status(200).send(favourite);
@@ -34,10 +36,7 @@ const userController = {
     const result = await userModel.getInfoUser({ IdUser, IdRoom });
     return res.status(200).send(result);
   }),
-  getAllUser: catchAsync(async (req, res) => {
-    const result = await userModel.getAllUser();
-    return res.status(200).send(result);
-  }),
+
 
   getAdmin: catchAsync(async () => {
     const result = await userModel.getAdmin();

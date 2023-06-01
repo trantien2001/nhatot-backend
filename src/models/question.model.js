@@ -2,11 +2,11 @@ import connection from './db.js';
 import uniqid from 'uniqid';
 
 const questionModel = {
-  getQuestion: async (id) => {
-    const sql = `SELECT * FROM question WHERE id = ?`;
-    const result = await connection.query(sql, [id]);
+  getQuestion: async (IdQuestion) => {
+    const sql = `SELECT * FROM question WHERE IdQuestion = ?`;
+    const result = await connection.query(sql, [IdQuestion]);
     return {
-      msg: 'Get question in successfully!',
+      msg: 'Lấy danh sách question thành công',
       question: result,
     };
   },
@@ -15,50 +15,44 @@ const questionModel = {
     const sql = 'SELECT * FROM question';
     const result = await connection.query(sql, []);
     return {
-      msg: 'Get question in successfully!',
+      msg: 'Lấy danh sách question thành công',
       question: result,
     };
   },
 
   getAllQuestionActive: async () => {
-    const sql = 'SELECT * FROM question WHERE active = 1';
-    const result = await connection.query(sql, []);
+    const sql = 'SELECT * FROM question WHERE Active = 1';
+    const question = await connection.query(sql, []);
     return {
-      msg: 'Get question in successfully!',
-      question: result,
+      msg: 'Lấy danh sách question thành công',
+      question,
     };
   },
 
   addQuestion: async ({ question, active }) => {
     const IdQuestion = uniqid('IdQuestion_');
-    const sql = `INSERT INTO question (id, content, active) VALUES (?, ?, ?)`;
+    const sql = `INSERT INTO question (IdQuestion, Content, Active) VALUES (?, ?, ?)`;
     await connection.query(sql, [IdQuestion, question, active]);
     return {
-      msg: 'Add question in successfully!',
+      msg: 'Thêm question thành công',
     };
   },
 
-  updateQuestion: async ({ question, active, id }) => {
-    const sql = `UPDATE question SET content = ?, active = ? WHERE id = ?`;
-    const result = await connection.query(sql, [question, active, id]);
-    return { msg: 'Cập nhập thành công' };
+  updateQuestion: async ({ question, active, IdQuestion }) => {
+    const sqlUpdate = `UPDATE question SET content = ?, Active = ? WHERE IdQuestion = ?`;
+    await connection.query(sqlUpdate, [question, active, IdQuestion]);
+    return { msg: 'Cập nhập question thành công' };
   },
-
-  // removeQuestion: async() => {
-  //   sql.query(
-  //     `
-  //       DELETE FROM question WHERE id = ${req.params.Id}
-  //     `,
-  //     (err, result) => {
-  //       if (err) {
-  //         return res.status(400).send({ msg: err });
-  //       }
-  //       return res.status(200).send({
-  //         msg: 'remove question in successfully!',
-  //       });
-  //     },
-  //   );
-  // },
+  deleteQuestion: async (IdQuestion) => {
+    const sqlDelete = `DELETE FROM question WHERE IdQuestion = ?`;
+    await connection.query(sqlDelete, [IdQuestion]);
+    const sqlSelect = 'SELECT * FROM question';
+    const question = await connection.query(sqlSelect, []);
+    return {
+      question,
+      msg: 'Xóa question thành công',
+    };
+  },
 };
 
 export default questionModel;
