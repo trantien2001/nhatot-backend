@@ -1,5 +1,5 @@
 import connection from './db.js';
-import fs from 'fs';
+import fs, { stat } from 'fs';
 import path from 'path';
 import uniqid from 'uniqid';
 const __dirname = path.resolve();
@@ -133,7 +133,7 @@ const motelModel = {
       Title, Price, Acreage, Deposits,Status,Description,
       DATE_FORMAT(motel.CreateDay, '%Y-%m-%d %H:%i:%s') as CreateDay,
       motel.Address, WardPrefix, WardName,
-      DistrictPrefix, DistrictName, ProvinceName, activeStatus, PhoneNumber
+      DistrictPrefix, DistrictName, ProvinceName, activeStatus, PhoneNumber, motel.Active
       FROM motel, ward, district, province, user
       WHERE motel.IdWard = ward.IdWard
       AND user.IdUser = motel.IdUser
@@ -570,6 +570,7 @@ const motelModel = {
       title,
       ward,
       // notifi,
+      status,
       IdMotel,
       media,
       mediaDelete,
@@ -582,7 +583,7 @@ const motelModel = {
     const updateMotel = `UPDATE motel 
       SET Title = ?, Price = ?, Acreage = ?, Address = ?, 
       Deposits = ?, Status = ?, Description = ?,
-      CreateDay = NOW(), IdWard = ?, Active = ? WHERE IdMotel = ?
+      IdWard = ?, Active = ?, Active = ? WHERE IdMotel = ?
       `;
     await connection.query(updateMotel, [
       title,
@@ -594,6 +595,7 @@ const motelModel = {
       description,
       result[0].IdWard,
       1,
+      status,
       IdMotel,
     ]);
     console.log(mediaDelete.length);

@@ -95,8 +95,7 @@ const authModel = {
       console.log('Không tìm thấy ảnh trong ' + imagePath);
     }
     const sql = `UPDATE user SET Avatar = ? WHERE IdUser = ?`;
-
-    const result = await connection.query(sql, [filename, IdUser]);
+    await connection.query(sql, [filename, IdUser]);
     return { file: filename };
   },
   changeInfoUser: async ({ IdUser, name, email, phoneNumber, road, gender, birthDay, ward, province }) => {
@@ -147,10 +146,9 @@ const authModel = {
     if (!result1[0]) {
       const IdUser = uniqid('IdUser_');
       const hashPassword = await bcrypt.hash(password, saltRounds);
-      const sql2 = `INSERT INTO user(IdUser, Name, PhoneNumber, Password) VALUES (?, ?, ?, ?)`;
+      const sql2 = `INSERT INTO user(IdUser, Name, PhoneNumber, Password, CreateDay) VALUES (?, ?, ?, ?, NOW())`;
       await connection.query(sql2, [IdUser, fullName, phoneNumber, hashPassword]);
     } else throw new ApiError(httpStatus.BAD_REQUEST, 'Số điện thoại này đã đăng ký');
-    // return { message: 'Số điện thoại này đã đăng ký' };
     const sql3 = `SELECT * FROM user WHERE PhoneNumber = ?`;
     const result = await connection.query(sql3, [phoneNumber]);
     return { msg: 'Đăng ký tài khoản thành công', result };

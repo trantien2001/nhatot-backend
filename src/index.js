@@ -6,6 +6,7 @@ import { routes } from './routes/route.js';
 import http, { createServer } from 'http';
 import { Server } from 'socket.io';
 import { errorConverter, errorHandler } from './middlewares/error.js';
+import config from './config/db.config.js';
 
 dotenv.config();
 const app = express();
@@ -23,7 +24,7 @@ export const io = new Server(server, {
   cors: {
     origin: '*',
     // origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
   },
 });
 app.use('/', express.static('public/images/'));
@@ -36,17 +37,19 @@ app.use(
   }),
 );
 
+const port = process.env.PORT;
 app.get('/', (req, res) => {
   res.send('Hello World!');
+  res.send(port);
 });
 
 routes(app);
 
-const port = process.env.PORT;
 // handle error
 app.use(errorConverter);
 app.use(errorHandler);
 
 server.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
+  console.log(config)
 });

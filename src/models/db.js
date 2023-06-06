@@ -5,7 +5,7 @@ function Database() {
   this.connection = mysql.createConnection({
     host: config.HOST,
     user: config.USER,
-    password: config.PASSWORK,
+    password: config.PASSWORD,
     database: config.DB,
     multipleStatements: true,
   });
@@ -34,7 +34,3 @@ function Database() {
 }
 var connection = new Database();
 export default connection;
-// connection.connect((error) => {
-//   if (error) throw error;
-//   console.log('Successfully connected to the database name:', dbConfig.DB);
-// });
