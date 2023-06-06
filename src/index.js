@@ -22,8 +22,7 @@ const app = express();
 const server = createServer(app);
 export const io = new Server(server, {
   cors: {
-    origin: '*',
-    // origin: 'http://localhost:3000',
+    origin: process.env.DOMAIN_CLIENT || 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   },
 });
@@ -37,7 +36,7 @@ app.use(
   }),
 );
 
-const port = 8000;
+const port = process.env.PORT || 8000;
 app.get('/', (req, res) => {
   res.send('Hello World!');
   res.send(port);
