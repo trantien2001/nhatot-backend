@@ -7,7 +7,7 @@ function Database() {
     user: config.USER,
     password: config.PASSWORD,
     database: config.DB,
-    port: config.PORT,
+    // port: config.PORT,
     multipleStatements: true,
   });
 
