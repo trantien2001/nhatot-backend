@@ -37,7 +37,7 @@ app.use(
   }),
 );
 
-const port = process.env.PORT;
+const port = 8000;
 app.get('/', (req, res) => {
   res.send('Hello World!');
   res.send(port);
@@ -51,5 +51,5 @@ app.use(errorHandler);
 
 server.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
-  console.log(config)
+  console.log(config);
 });
