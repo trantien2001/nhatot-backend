@@ -31,7 +31,7 @@ const questionModel = {
 
   addQuestion: async ({ question, active }) => {
     const IdQuestion = uniqid('IdQuestion_');
-    const sql = `INSERT INTO question (IdQuestion, Content, Active) VALUES (?, ?, ?)`;
+    const sql = `INSERT INTO question (IdQuestion, Content, Active, IdUser) VALUES (?, ?, ?, 'IdUser_1b8oqm3c0slhykthel')`;
     await connection.query(sql, [IdQuestion, question, active]);
     return {
       msg: 'Thêm question thành công',

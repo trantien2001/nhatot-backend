@@ -61,11 +61,10 @@ const motelModel = {
   WHERE motel.IdWard = ward.IdWard
   AND ward.IdDistrict = district.IdDistrict
   AND district.IdProvince = province.IdProvince
-  AND motel.Active = true
   AND user.IdUser = motel.IdUser
-  AND media.IdMotel = Motel.IdMotel
+  AND media.IdMotel = motel.IdMotel
   AND motel.IdMotel IN (${chuoi})
-  GROUP by Motel.IdMotel
+  GROUP by motel.IdMotel
   ORDER by motel.CreateDay DESC
     `;
 
@@ -78,7 +77,7 @@ const motelModel = {
         }
       });
     });
-    return { motelNew, motelFavourite, msg: 'Lấy danh sách nhà trọ thành cồng' };
+    return { motelNew, motelFavourite, msg: 'Lấy danh sách nhà trọ thành công' };
   },
   getMotelFavourite: async (data) => {
     const { IdUser } = data;
@@ -544,10 +543,10 @@ const motelModel = {
     const followers = await connection.query(sqlFollowers, [IdUser]);
 
     if (followers.length > 0) {
-      let sqlAddNotifi = `INSERT INTO notifi(IdNotifi, IdSender, IdReceiver, Content, CreateDay, Active) VALUES`;
+      let sqlAddNotifi = `INSERT INTO notifi(IdNotifi, IdSender, IdReceiver, Content, CreateDay, Active, IdMotel) VALUES`;
       for (let i = 0; i < followers.length; i++) {
         const IdNotifi = uniqid('IdNotifi_');
-        sqlAddNotifi += `('${IdNotifi}', '${IdUser}', '${followers[i].IdFollowers}', '${notifi}', NOW(), 1),`;
+        sqlAddNotifi += `('${IdNotifi}', '${IdUser}', '${followers[i].IdFollowers}', '${notifi}', NOW(), 1, '${IdMotel}'),`;
       }
       sqlAddNotifi = sqlAddNotifi.slice(0, -1);
       console.log(sqlAddNotifi);

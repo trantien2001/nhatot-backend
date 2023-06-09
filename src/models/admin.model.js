@@ -27,7 +27,7 @@ const adminModel = {
     if (!result1[0]) {
       const IdUser = uniqid('IdUser_');
       const hashPassword = await bcrypt.hash(password, saltRounds);
-      const sqlAdminAddUser = `INSERT INTO user(IdUser, Name, PhoneNumber, Password, IdAuthority) VALUES(?, ?, ?, ?, ?) `;
+      const sqlAdminAddUser = `INSERT INTO user(IdUser, Name, PhoneNumber, Password, IdAuthority, CreateDay) VALUES(?, ?, ?, ?, ?, NOW()) `;
       await connection.query(sqlAdminAddUser, [IdUser, fullName, phoneNumber, hashPassword, permission]);
       return { msg: 'Thêm người dùng thành công' };
     } else return { msg: 'Số điện thoại này đã đăng ký' };
@@ -137,10 +137,10 @@ const adminModel = {
 
   adminAddBanner: async (data) => {
     const { banner, active } = data;
-    let sqlIsertBanner = `INSERT INTO banner(IdBanner, srcBanner, Active) VALUES `;
+    let sqlIsertBanner = `INSERT INTO banner(IdBanner, srcBanner, Active, IdUser) VALUES `;
     for (let i = 0; i < banner?.length; i++) {
       const IdBanner = uniqid('IdBanner_');
-      sqlIsertBanner += `('${IdBanner}', '${banner[i]?.filename}', 1),`;
+      sqlIsertBanner += `('${IdBanner}', '${banner[i]?.filename}', 1, 'IdUser_1b8oqm3c0slhykthel'),`;
     }
     sqlIsertBanner = sqlIsertBanner.slice(0, -1);
     console.log(sqlIsertBanner);

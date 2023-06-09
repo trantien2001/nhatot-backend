@@ -36,12 +36,13 @@ const userModel = {
       timestampdiff(hour, notifi.CreateDay, now()) as hour,
       timestampdiff(minute, notifi.CreateDay, now()) as minute,
       timestampdiff(second, notifi.CreateDay, now()) as second,
-      Content, IdReceiver, IdNotifi, Avatar
+      notifi.*, user.*
       FROM notifi, user WHERE IdReceiver = ? AND user.IdUser = notifi.IdSender
       ORDER BY notifi.CreateDay DESC
       `;
+    // Content, IdReceiver, IdNotifi, Avatar
     const notifi = await connection.query(sqlSelectNotifi, [IdUser]);
-    return { notifi, msg: 'get notifi in successfully!' };
+    return { notifi, msg: 'Lấy danh sách thông báo thành công!' };
   },
   getAllNotifiByIdUser: async (data) => {
     const { IdUser } = data;
@@ -52,12 +53,13 @@ const userModel = {
       timestampdiff(hour, notifi.CreateDay, now()) as hour,
       timestampdiff(minute, notifi.CreateDay, now()) as minute,
       timestampdiff(second, notifi.CreateDay, now()) as second,
-      Content, IdReceiver, IdNotifi, Avatar
+      notifi.*, user.*
       FROM notifi, user WHERE IdReceiver = ? AND user.IdUser = notifi.IdSender
       ORDER BY notifi.CreateDay DESC
       `;
+    // Content, IdSender, IdReceiver, IdNotifi, Avatar
     const notifi = await connection.query(sql, [IdUser]);
-    return { notifi, msg: 'get notifi in successfully!' };
+    return { notifi, msg: 'Lấy danh sách thông báo thành công!' };
   },
   getUser: async (data) => {
     const { IdUser, IdFollowers } = data;
