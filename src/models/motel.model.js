@@ -25,8 +25,8 @@ const motelModel = {
     AND district.IdProvince = province.IdProvince
     AND motel.Active = true
     AND user.IdUser = motel.IdUser
-    AND media.IdMotel = Motel.IdMotel
-    GROUP by Motel.IdMotel
+    AND media.IdMotel = motel.IdMotel
+    GROUP by motel.IdMotel
     ORDER by motel.CreateDay DESC
     LIMIT 0, 10
     `;
@@ -199,7 +199,7 @@ const motelModel = {
       AND Motel.IdWard = ?
       AND Price BETWEEN ? AND ?
       AND Acreage BETWEEN ? AND ?
-      GROUP by Motel.IdMotel
+      GROUP by motel.IdMotel
       ORDER by motel.CreateDay DESC
       `;
     const sqlSelectLimitMotel = `SELECT
@@ -223,8 +223,8 @@ const motelModel = {
       AND Motel.IdWard = ?
       AND Price BETWEEN ? AND ?
       AND Acreage BETWEEN ? AND ?
-      AND media.IdMotel = Motel.IdMotel
-      GROUP by Motel.IdMotel
+      AND media.IdMotel = motel.IdMotel
+      GROUP by motel.IdMotel
       ORDER by motel.CreateDay DESC
       LIMIT ?, ?
       `;
@@ -260,11 +260,11 @@ const motelModel = {
     AND district.IdProvince = province.IdProvince
     AND motel.Active = true
     AND user.IdUser = motel.IdUser
-    AND media.IdMotel = Motel.IdMotel
+    AND media.IdMotel = motel.IdMotel
     AND district.IdDistrict = ?
     AND Price BETWEEN ? AND ?
       AND Acreage BETWEEN ? AND ?
-    GROUP by Motel.IdMotel
+    GROUP by motel.IdMotel
     ORDER by motel.CreateDay DESC
     `;
     const sqlSelectLimitMotel = `SELECT
@@ -285,11 +285,11 @@ const motelModel = {
     AND district.IdProvince = province.IdProvince
     AND motel.Active = true
     AND user.IdUser = motel.IdUser
-    AND media.IdMotel = Motel.IdMotel
+    AND media.IdMotel = motel.IdMotel
     AND district.IdDistrict = ?
     AND Price BETWEEN ? AND ?
     AND Acreage BETWEEN ? AND ?
-    GROUP by Motel.IdMotel
+    GROUP by motel.IdMotel
     ORDER by motel.CreateDay DESC
     LIMIT ?, ?
     `;
@@ -324,11 +324,11 @@ const motelModel = {
       AND district.IdProvince = province.IdProvince
       AND motel.Active = true
       AND user.IdUser = motel.IdUser
-      AND media.IdMotel = Motel.IdMotel
+      AND media.IdMotel = motel.IdMotel
       AND province.IdProvince = ?
       AND Price BETWEEN ? AND ?
       AND Acreage BETWEEN ? AND ?
-      GROUP by Motel.IdMotel
+      GROUP by motel.IdMotel
       ORDER by motel.CreateDay DESC
       `;
     const sqlSelectLimitMotel = `SELECT
@@ -349,11 +349,11 @@ const motelModel = {
     AND district.IdProvince = province.IdProvince
     AND motel.Active = true
     AND user.IdUser = motel.IdUser
-    AND media.IdMotel = Motel.IdMotel
+    AND media.IdMotel = motel.IdMotel
     AND province.IdProvince = ?
     AND Price BETWEEN ? AND ?
     AND Acreage BETWEEN ? AND ?
-    GROUP by Motel.IdMotel
+    GROUP by motel.IdMotel
     ORDER by motel.CreateDay DESC
     LIMIT ?, ?
     `;
@@ -473,8 +473,8 @@ const motelModel = {
       AND district.IdProvince = province.IdProvince
       AND motel.Active = true
       AND user.IdUser = motel.IdUser
-      AND media.IdMotel = Motel.IdMotel
-      GROUP by Motel.IdMotel
+      AND media.IdMotel = motel.IdMotel
+      GROUP by motel.IdMotel
       ORDER by motel.CreateDay DESC
       `;
     const motel = await connection.query(sql, []);
@@ -659,10 +659,10 @@ const motelModel = {
     AND district.IdProvince = province.IdProvince
     AND motel.Active = true
     AND user.IdUser = motel.IdUser
-    AND media.IdMotel = Motel.IdMotel
+    AND media.IdMotel = motel.IdMotel
     AND district.IdDistrict = ?
     AND Price BETWEEN ? AND ?
-    GROUP by Motel.IdMotel
+    GROUP by motel.IdMotel
     ORDER by motel.CreateDay DESC
     `;
     const sql2 = `SELECT
@@ -683,10 +683,10 @@ const motelModel = {
   AND district.IdProvince = province.IdProvince
   AND motel.Active = true
   AND user.IdUser = motel.IdUser
-  AND media.IdMotel = Motel.IdMotel
+  AND media.IdMotel = motel.IdMotel
   AND district.IdDistrict = ?
   AND Price BETWEEN ? AND ?
-  GROUP by Motel.IdMotel
+  GROUP by motel.IdMotel
   ORDER by motel.CreateDay DESC
   LIMIT ?, ?
   `;
@@ -702,10 +702,10 @@ const motelModel = {
     AND district.IdProvince = province.IdProvince
     AND motel.Active = true
     AND user.IdUser = motel.IdUser
-    AND media.IdMotel = Motel.IdMotel
+    AND media.IdMotel = motel.IdMotel
     AND province.IdProvince = ?
     AND Price BETWEEN ? AND ?
-    GROUP by Motel.IdMotel
+    GROUP by motel.IdMotel
     ORDER by motel.CreateDay DESC
     `;
     const sql2 = `SELECT
@@ -725,10 +725,10 @@ const motelModel = {
     AND district.IdProvince = province.IdProvince
     AND motel.Active = true
     AND user.IdUser = motel.IdUser
-    AND media.IdMotel = Motel.IdMotel
+    AND media.IdMotel = motel.IdMotel
     AND province.IdProvince = ?
     AND Price BETWEEN ? AND ?
-    GROUP by Motel.IdMotel
+    GROUP by motel.IdMotel
     ORDER by motel.CreateDay DESC
     LIMIT ?, ?
     `;
